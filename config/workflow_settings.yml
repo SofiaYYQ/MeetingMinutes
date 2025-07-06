@@ -1,0 +1,230 @@
+app:
+  log:
+    log_level: "INFO"
+  general:
+    # "chat", "evaluate", "normal" 
+    execute_mode: "evaluate"
+    llm:
+        # Puede no ser necesario, si no se indica el base_url, pues no se usa un server
+        # use_server: true 
+        base_url: "http://156.35.95.18:11434"
+        
+        model_name: "gemma3:12b"
+        # embedding_model_name: "snowflake-arctic-embed2"
+        request_timeout: 600.0
+        system_prompt: "Responde siempre en español"
+        temperature: 0
+    keywords_extractor:
+      type: multi_extractor
+      extractors:
+        - type: nlp
+        - type: keybert
+    
+  evaluation_config:
+    questions_file_path: "dataset/questions/1-questions_persons.txt"
+    prompts_file_path: "dataset/questions/prompts/1-questions_persons_prompts.txt"
+    answers_file_path: "dataset/answers/1-questions_persons_answers.txt"
+    results_folder_path: "results"
+    reports_folder_path: "reports"
+    
+  data_processing:
+    data_folder_path: "data"
+    metadata_config:
+      data_description: "Las actas de las reuniones de la comunidad de vecinos incluyen detalles sobre la fecha, la hora de inicio y fin, y el lugar de celebración. Además, se enumeran los asistentes y se presenta el orden del día."
+      fields_info:
+        - name: "fecha"
+          type: "str"
+          description: "Es la fecha en la que se celebró la reunión. Está en formato DD/MM/AAAA."
+        - name: "num_asistentes"
+          type: "int"
+          description: "Es el número de asistentes a la reunión"
+        - name: "lista_asistentes"
+          type: "list"
+          description: "Es la lista de nombres de los asistentes de la reunión."
+        - name: "presidente"
+          type: "str"
+          description: "Es el nombre del presidente o presidenta de la reunión."
+        - name: "secretario"
+          type: "str"
+          description: "Es el nombre del secretorio o secretaria de la reunión."
+    chunks_config:
+      chunk_size: 512
+      chunk_overlap: 0
+
+  workflow:
+    - step:
+      id: "filter_documents"
+      steps:
+        - step:
+          id: "get_person_name_from_query"
+          prompt: |
+            Extrae el nombre completo (nombre y apellidos) de la persona mencionada en la siguiente consulta. Si no se menciona ninguna persona, devuelve "None".
+
+            Devuelve el resultado en formato JSON con la clave "persona", siguiendo exactamente esta estructura:
+
+            {{"persona": "nombre y apellidos de la persona"}}
+              o
+            {{"persona": "None"}}
+
+            CONSULTA: {query}
+          json_output: True
+          output: name_obj
+
+        - step:
+          id: "get_date_from_query"
+          prompt: |
+            Extrae la fecha mencionada en la siguiente consulta en formato DD/MM/AAAA. Si no se menciona ninguna fecha, devuelve "None".
+
+            Si la fecha está incompleta, utiliza "%" para el día, el mes o el año faltante. Por ejemplo:
+            - Si solo se menciona "junio de 2023", devuelve: {{"fecha": "%/06/2023"}}
+            - Si solo se menciona "2022", devuelve: {{"fecha": "%/%/2022"}}
+
+            Devuelve el resultado en formato JSON con la clave "fecha", siguiendo exactamente una de estas dos estructuras:
+
+            {{"fecha": "DD/MM/AAAA"}}
+            o
+            {{"fecha": "None"}}
+
+            CONSULTA: {query}
+          json_output: True
+          output: date_obj
+
+        - step:
+          id: "check_filters"
+          condition: name_obj["persona"] and name_obj["persona"] != "None" or date_obj["fecha"] and date_obj["fecha"] != "None"
+          if_true:
+            - step:
+              id: "apply_filters"
+              foreach: documents
+              filter_by: name_obj["persona"] in documents.metadata["lista_asistentes"] and documents.metadata["fecha"] == name_obj["fecha"]
+              output: filtered_docs
+            - step:
+              id: "check_number_documents"
+              condition: len(filtered_docs) == 0
+              if_true:
+                - step:
+                  id: "empty_filtered_docs_end"
+                  action: "move_to_step"
+                  inputs: ["get_final_response"]
+              if_false:
+                - step:
+                  id: "not_empty_filtered_docs"
+                  action: "move_to_step"
+                  inputs: ["check_query_type"]
+    - step:
+      id: "check_query_type"
+      steps:
+        - step:
+          id: "check_comparative_query"
+          action: "check_terms_in_text"
+          inputs: [["mejor", "mejores", "peor", "peores", "superior", "superiores", "inferior", "inferiores",
+            "mayor", "mayores", "menor", "menores", "más", "menos"], query]
+          output: is_comparative_query
+        - step:
+          id: "check_global_query"
+          condition: "'reunión' not in query and 'reuniones' in query and !is_comparative_query"
+          if_true:
+            - step:
+              id: "globalquery"
+              action: "move_to_step"
+              inputs: ["transform_to_subquery"]
+
+    - step:
+      id: "transform_to_subquery" 
+      prompt: |
+        Transforma preguntas globales que requieren revisar múltiples documentos (como actas de reuniones) en preguntas individuales que puedan aplicarse a cada documento por separado.
+        Pasos:
+        1.	Identificar el sujeto y la acción de la oración:
+        2.	Convierte la pregunta global en una individual:
+        ¿[Acción] [Sujeto] [Por el complemento que se pregunta si existe, sino este documento]?
+        Ejemplo
+        Pregunta global: ¿En cuántos informes médicos se menciona a Laura Sánchez?
+        Pregunta individual: ¿Es mencionada Laura Sánchez en este informe médico?
+
+        Ejemplo
+        Pregunta global: ¿Cuántas veces aparece el nombre de Javier Torres?
+        Pregunta individual: ¿Aparece el nombre de Javier Torres en este documento?
+                    
+        Transforma ahora la siguiente pregunta global en una pregunta individual aplicable a un solo documento. 
+        Pregunta global: {query}
+
+        Responde en formato json con dos claves "pregunta_global", "pregunta_individual":
+        {{
+            "pregunta_global":"pregunta original",
+            "pregunta_individual":"pregunta transformada"
+        }}
+      json_output: True
+      output: subquery
+    - step:
+      id: "select_query"
+      action: "choose"
+      inputs: ["not is_global_query", query, subquery]
+      output: "effective_query"
+    - step:
+      id: "get_information"
+      condition: "not is_comparative_query"
+      if_true:
+        - step:
+          foreach: filtered_documents
+          prompt: |
+            Contexto:
+            {document_str}
+
+            Analiza el documento proporcionado y utiliza esa información para responder con precisión a la siguiente pregunta.
+
+            Instrucciones:
+
+            1. Identifica los datos del documento de donde proviene la información, incluyendo el nombre del archivo y la fecha de la reunión.
+
+            2. Redacta una respuesta clara, completa y contextualizada, que:
+            - Sea directa, bien fundamentada y autónoma.
+
+            - Incluya explícitamente el sujeto, la acción y los datos de identificación del documento (como el nombre del archivo, fecha de reunión) dentro del cuerpo de la respuesta, para que quede claro a qué documento se refiere.
+
+            - Evite respuestas fragmentadas (por ejemplo, no uses "Sí, llegó", usa "Sí, Ángel llegó el viernes, según el documento [nombre del documento y otros datos de identificacón del documento]").
+            
+            3. Incluye evidencia textual relevante extraída del documento para respaldar tu respuesta. Esta puede ser una cita directa o un resumen claro y preciso.
+
+
+            Formato de salida (JSON):
+            {{
+            "pregunta": "(escribe aquí la pregunta original)",
+            "respuesta": "(respuesta clara, completa, con contexto y referencia explícita al documento)",
+            "evidencia": "(cita textual o resumen de la evidencia encontrada en el documento)"
+            }}
+            Pregunta: {query}
+          output: evidences # Falta la parte de evaluación de 5 veces una evidencia
+    - step:
+      id: "generate info_str"
+      condition: "not is_comparative_query"
+      if_true:
+        - step:
+          id: "format evidences"
+          action: "format"
+          inputs: [evidences, ""]
+          output: info_str
+      is_false:
+        - step:
+          id: "format documents"
+          action: "format"
+          inputs: [filtered_documents, "item"]
+          output: info_str
+    - step:
+      id: "get_final_response"
+      prompt: |
+        Genera una respuesta final directa a la consulta del usuario, utilizando únicamente la información contenida en los pasos que se presentan a continuación. 
+        No expliques los pasos ni los filtros aplicados. Limítate a responder a la consulta como si ya hubieras realizado todo el análisis necesario.
+
+        Pasos realizados anteriormente:
+        {formatted_steps}
+
+        Consulta del usuario: {query}
+      output: final_response
+
+
+
+
+
+      
+    
+  

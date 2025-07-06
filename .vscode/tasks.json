@@ -1,0 +1,82 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Init env",
+            "type": "shell",
+            "command": "cd ${workspaceFolder}/Actas pip install chromadb llama_index.core llama_index.embeddings.ollama llama_index.llms.ollama llama_index.vector_stores.chroma",
+            "group": {
+              "kind": "build",
+              "isDefault": true
+            },
+            "problemMatcher": [],
+            "presentation": {
+              "reveal": "silent",
+              "panel": "shared",
+              "showReuseMessage": false
+            }
+        },
+        {
+            "label": "Run Python Actas basic",
+            "type": "shell",
+            "command": "cd ${workspaceFolder}/Actas && \"env_actas/Scripts/activate.bat\" && python src/1-basic_query_engine.py && deactivate",
+            "group": {
+              "kind": "build",
+              "isDefault": true
+            },
+            "problemMatcher": [],
+            "presentation": {
+              "reveal": "silent",
+              "panel": "shared",
+              "showReuseMessage": false
+            }
+        },
+        {
+            "label": "Run Python Actas RAG",
+            "type": "shell",
+            "command": "cd ${workspaceFolder}/Actas && \"env_actas/Scripts/activate.bat\" && python src/2-rag_query_engine.py && deactivate",
+            "group": {
+              "kind": "build",
+              "isDefault": true
+            },
+            "problemMatcher": [],
+            "presentation": {
+              "reveal": "silent",
+              "panel": "shared",
+              "showReuseMessage": false
+            }
+        },
+        {
+            "label": "Run Python Actas RAG2",
+            "type": "shell",
+            "command": "cd ${workspaceFolder}/Actas && \"env_actas/Scripts/activate.bat\" && python src/3-auto_retriever_query_engine.py && deactivate",
+            "group": {
+              "kind": "build",
+              "isDefault": true
+            },
+            "problemMatcher": [],
+            "presentation": {
+              "reveal": "silent",
+              "panel": "shared",
+              "showReuseMessage": false
+            }
+        },
+        {
+            "label": "Run Python Prueba sim_cos",
+            "type": "shell",
+            "command": "cd ${workspaceFolder}/Prueba && \"env_prueba/Scripts/activate.bat\" && python calculo_similitud_con_SBERT.py && deactivate",
+            "group": {
+              "kind": "build",
+              "isDefault": true
+            },
+            "problemMatcher": [],
+            "presentation": {
+              "reveal": "silent",
+              "panel": "shared",
+              "showReuseMessage": false
+            }
+        }
+    ]
+}

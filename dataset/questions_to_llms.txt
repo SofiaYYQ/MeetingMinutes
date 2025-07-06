@@ -1,0 +1,179 @@
+=========1=========
+Dada la información contenida en los pdfs y sin conocimientos previos.
+Responde a la consulta.
+Consulta: ¿Asistió Carmen Herrera Jiménez a la reunión del 25 de febrero de 2025?
+
+=========2=========
+Dada la información contenida en los pdfs y sin conocimientos previos.
+Responde a la consulta.
+Consulta: ¿Asistió Carmen Herrera Jiménez a la reunión del 25 de febrero de 2026?
+
+=========3=========
+Dada la información contenida en los pdfs y sin conocimientos previos.
+Responde a la consulta.
+Consulta: ¿Quién fue el presidente en la reunión del 25 de agosto de 2025?
+
+=========4=========
+Dada la información contenida en los pdfs y sin conocimientos previos.
+Responde a la consulta.
+Consulta: ¿Quién fue la secretaria en la reunión del 25 de agosto de 2026?
+
+=========5=========
+Dada la información contenida en los pdfs y sin conocimientos previos.
+Responde a la consulta.
+Consulta: ¿A cuántas reuniones ha asistido Silvia Medina Pérez?
+
+=========6=========
+Dada la información contenida en los pdfs y sin conocimientos previos.
+Responde a la consulta.
+Consulta: ¿A cuántas reuniones ha asistido Manuel Ortega Medina?
+
+=========7=========
+Dada la información contenida en los pdfs y sin conocimientos previos.
+Responde a la consulta.
+Consulta: ¿A cuántas reuniones ha asistido Marta Navarro Díaz?
+
+=========8=========
+Dada la información contenida en los pdfs y sin conocimientos previos.
+Responde a la consulta.
+Consulta: ¿En qué reuniones participó Silvia Medina Pérez?
+
+=========9=========
+Dada la información contenida en los pdfs y sin conocimientos previos.
+Responde a la consulta.
+Consulta: ¿En qué reuniones participó Manuel Ortega Medina?
+
+=========10=========
+Dada la información contenida en los pdfs y sin conocimientos previos.
+Responde a la consulta.
+Consulta: ¿En qué reuniones participó Marta Navarro Díaz?
+
+=========11=========
+Dada la información contenida en los pdfs y sin conocimientos previos.
+Responde a la consulta.
+Consulta: ¿Cuántas veces ha sido presidenta Natalia Vázquez Gutiérrez?
+
+=========12=========
+Dada la información contenida en los pdfs y sin conocimientos previos.
+Responde a la consulta.
+Consulta: ¿Cuántas veces ha sido presidente Manuel Ortega Medina?
+
+=========13=========
+Dada la información contenida en los pdfs y sin conocimientos previos.
+Responde a la consulta.
+Consulta: ¿En qué reuniones ha sido presidenta Rosa Aguilar Fernández?
+
+=========14=========
+Dada la información contenida en los pdfs y sin conocimientos previos.
+Responde a la consulta.
+Consulta: ¿En qué reuniones ha sido secretaria Rosa Aguilar Fernández?
+
+=========15=========
+Dada la información contenida en los pdfs y sin conocimientos previos.
+Responde a la consulta.
+Consulta: ¿Cuántas personas asistieron a la reunión del 24 de febrero de 2025?
+
+=========16=========
+Dada la información contenida en los pdfs y sin conocimientos previos.
+Responde a la consulta.
+Consulta: ¿Quiénes asistieron a la reunión del 25 de febrero de 2026?
+
+=========17=========
+Dada la información contenida en los pdfs y sin conocimientos previos.
+Responde a la consulta.
+Consulta: ¿Cuál o cuáles fueron las reuniones con mayor asistencia?
+
+=========18=========
+Dada la información contenida en los pdfs y sin conocimientos previos.
+Responde a la consulta.
+Consulta: ¿Quién o quiénes asistieron a menos reuniones en el año 2026?
+
+=========19=========
+Dada la información contenida en los pdfs y sin conocimientos previos.
+Responde a la consulta.
+Consulta: ¿Asistió Alejandro Torres Rojas a la reunión del 25 de agosto de 2026?
+
+=========20=========
+Dada la información contenida en los pdfs y sin conocimientos previos.
+Responde a la consulta.
+Consulta: ¿Asistió Roberto Martínez Vázquez a la reunión del 25 de agosto de 2025?
+
+=========21=========
+Dada la información contenida en los pdfs y sin conocimientos previos.
+Responde a la consulta.
+Consulta: ¿Quién fue el presidente en la reunión del 25 de febrero de 2025?
+
+=========22=========
+Dada la información contenida en los pdfs y sin conocimientos previos.
+Responde a la consulta.
+Consulta: ¿Quién fue la secretaria en la reunión del 24 de febrero de 2025?
+
+=========23=========
+Dada la información contenida en los pdfs y sin conocimientos previos.
+Responde a la consulta.
+Consulta: ¿A cuántas reuniones ha asistido Ricardo Flores Sánchez?
+
+=========24=========
+Dada la información contenida en los pdfs y sin conocimientos previos.
+Responde a la consulta.
+Consulta: ¿A cuántas reuniones ha asistido Carmen Herrera Jiménez?
+
+=========25=========
+Dada la información contenida en los pdfs y sin conocimientos previos.
+Responde a la consulta.
+Consulta: ¿A cuántas reuniones ha asistido Eduardo Medina Torres?
+
+=========26=========
+Dada la información contenida en los pdfs y sin conocimientos previos.
+Responde a la consulta.
+Consulta: ¿En qué reuniones participó Jorge Moreno Navarro?
+
+=========27=========
+Dada la información contenida en los pdfs y sin conocimientos previos.
+Responde a la consulta.
+Consulta: ¿En qué reuniones participó Alejandro Torres Rojas?
+
+=========28=========
+Dada la información contenida en los pdfs y sin conocimientos previos.
+Responde a la consulta.
+Consulta: ¿En qué reuniones participó Patricia Sánchez Díaz?
+
+=========29=========
+Dada la información contenida en los pdfs y sin conocimientos previos.
+Responde a la consulta.
+Consulta: ¿Cuántas veces ha sido presidenta Rosa Aguilar Fernández?
+
+=========30=========
+Dada la información contenida en los pdfs y sin conocimientos previos.
+Responde a la consulta.
+Consulta: ¿Cuántas veces ha sido presidente Jorge Moreno Navarro?
+
+=========31=========
+Dada la información contenida en los pdfs y sin conocimientos previos.
+Responde a la consulta.
+Consulta: ¿En qué reuniones ha sido presidenta Francisco Torres Delgado?
+
+=========32=========
+Dada la información contenida en los pdfs y sin conocimientos previos.
+Responde a la consulta.
+Consulta: ¿En qué reuniones ha sido secretaria Natalia Vázquez Gutiérrez?
+
+=========33=========
+Dada la información contenida en los pdfs y sin conocimientos previos.
+Responde a la consulta.
+Consulta: ¿Cuántas personas asistieron a la reunión del 25 de agosto de 2025?
+
+=========34=========
+Dada la información contenida en los pdfs y sin conocimientos previos.
+Responde a la consulta.
+Consulta: ¿Quiénes asistieron a la reunión del 25 de agosto de 2026?
+
+=========35=========
+Dada la información contenida en los pdfs y sin conocimientos previos.
+Responde a la consulta.
+Consulta: ¿Cuál o cuáles fueron las reuniones con menor asistencia?
+
+=========36=========
+Dada la información contenida en los pdfs y sin conocimientos previos.
+Responde a la consulta.
+Consulta: ¿Quién o quiénes asistieron a más reuniones durante el 2026?
