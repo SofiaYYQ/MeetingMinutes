@@ -102,15 +102,15 @@ StepModel = Union[
 CompositeStepModel.model_rebuild()
 IfStepModel.model_rebuild()
 
-class StepWrapper(BaseModel):
-    step: StepModel
+# class StepWrapper(BaseModel):
+#     step: StepModel
 
 class AppConfig(BaseModel):
     log: LogConfig
     general: GeneralConfig
     evaluation_config: EvaluationConfig
     data_processing: DataProcessingConfig
-    workflow: List[StepWrapper]
+    workflow: List[StepModel]
 
 class FullConfig(BaseModel):
     app: AppConfig
