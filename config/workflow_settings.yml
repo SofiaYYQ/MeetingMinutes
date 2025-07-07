@@ -7,18 +7,13 @@ app:
     llm:
         # Puede no ser necesario, si no se indica el base_url, pues no se usa un server
         # use_server: true 
-        base_url: "http://156.35.95.18:11434"
+        # base_url: "http://156.35.95.18:11434"
         
-        model_name: "gemma3:12b"
+        model_name: "qwen3:4b"
         # embedding_model_name: "snowflake-arctic-embed2"
         request_timeout: 600.0
-        system_prompt: "Responde siempre en español"
-        temperature: 0
-    keywords_extractor:
-      type: multi_extractor
-      extractors:
-        - type: nlp
-        - type: keybert
+        # system_prompt: "Responde siempre en español"
+        temperature: 0.3
     
   evaluation_config:
     questions_file_path: "dataset/questions/1-questions_persons.txt"
