@@ -97,7 +97,6 @@ class QwenDocumentsBasedQAFlow(Workflow):
         self.logger = LoggerManager.get_logger(name=self.__class__.__name__)
         self.llm = llm
         self.llm_json_output = llm_json_output
-        # self.key_extractor = key_extractor
         self.step_results = []
 
 

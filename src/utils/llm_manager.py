@@ -46,7 +46,7 @@ class LLMManager(metaclass=SingletonMeta):
     def create_json_output_llm_by_config(llm_config:LLMConfig):
         input_params = llm_config.model_dump_for_create_llm()
         json_params = {
-            "temperature": 0.0,
+            # "temperature": 0.0,
             "json_mode": True,
         }
 

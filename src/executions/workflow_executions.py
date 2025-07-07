@@ -9,6 +9,7 @@ from evaluate.accuracy_evaluator import AccuracyEvaluator
 
 # from executions.executions import ModeExecution
 from logger_manager import LoggerMixin
+from new_workflow import DocumentsBasedQAFlowExecutor
 from utils.utils import Utils
 from utils.evaluation_mode_validator import EvaluationModeValidator
 from utils.file_handler import FileHandler
@@ -79,7 +80,6 @@ class WorkflowEvaluationModeExecution(WorkflowModeExecution):
         AccuracyEvaluator.get_accuracy_results(f"{reports_folder_path}/{filename}.csv", questions, answers, responses, formatted_real_responses)
 
         # AccuracyEvaluator.get_results(f"{reports_folder_path}/{filename}.csv", questions, answers, responses)
-        
 
 class BaselineEvaluationModeExecution(LoggerMixin):
     def __init__(self, llm: Ollama, evaluation_config: EvaluationConfig, documents:List[Document]):
@@ -211,3 +211,55 @@ class ReActAgentEvaluationModeExecution(LoggerMixin):
 
         # AccuracyEvaluator.get_results(f"{reports_folder_path}/{filename}.csv", questions, answers, responses)
 
+
+
+class ExecutorEvaluationModeExecution(LoggerMixin):
+    def __init__(self, executor: DocumentsBasedQAFlowExecutor, evaluation_config: EvaluationConfig, documents:List[Document]):
+        super().__init__()
+        self.executor = executor
+        self.evaluation_config = evaluation_config
+        self.validator = EvaluationModeValidator()
+        self.documents = documents
+
+    def run(self):
+        self._process_questions()
+
+    def _process_question(self, query)-> str:
+        response = self.executor.run(
+            query=query
+        )
+        return response
+    
+    def _process_questions(self):
+        questions_file_path = self.evaluation_config.questions_file_path
+        prompts_file_path = self.evaluation_config.prompts_file_path
+        answers_file_path = self.evaluation_config.answers_file_path
+        results_folder_path = self.evaluation_config.results_folder_path
+        reports_folder_path = self.evaluation_config.reports_folder_path
+
+        questions = FileHandler.read_from_txt(questions_file_path)
+        prompts = FileHandler.read_from_txt(prompts_file_path)
+        answers = FileHandler.read_from_txt(answers_file_path)
+
+        responses = []
+
+        for index, question in enumerate(questions):
+            self.logger.info(f"{index + 1}. Pregunta: {question}")
+            
+            response_text = self._process_question(question)
+
+            self.logger.info(f"Respuesta: {response_text}\n")
+            responses.append(response_text) 
+
+        # Get the questions file name (without .txt extension and parent folders)
+        questions_file_name = os.path.splitext(os.path.basename(questions_file_path))[0]
+    
+        # filename = Utils.get_analysis_output_name(questions_file_name, self.full_config)
+        filename = Utils.get_testing_analysis_output_name(questions_file_name)
+
+        FileHandler.write_to_txt(f"{results_folder_path}/{filename}.txt", responses)
+
+        formatted_real_responses = self.validator.get_formatted_answers(responses, prompts)
+        AccuracyEvaluator.get_accuracy_results(f"{reports_folder_path}/{filename}.csv", questions, answers, responses, formatted_real_responses)
+
+        # AccuracyEvaluator.get_results(f"{reports_folder_path}/{filename}.csv", questions, answers, responses)
