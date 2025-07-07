@@ -67,41 +67,77 @@ class BaseStepModel(BaseModel):
     output: str
 
 class CompositeStepModel(BaseStepModel):
+    step_type: Literal["composite"]
     steps: List["StepModel"]
 
 class IfStepModel(BaseStepModel):
+    step_type: Literal["if"]
     condition: str
     if_true: "StepModel"
     if_false: Optional["StepModel"] = None
 
 class LLMCallStepModel(BaseStepModel):
+    step_type: Literal["llm_call"]
     prompt: str
     json_output: Optional[bool] = False
 
 class FormatDocumentsActionStepModel(BaseStepModel):
+    step_type: Literal["action"]
     action: Literal["format_documents"]
     inputs: List[str]
 
+class FormatDocumentActionStepModel(BaseStepModel):
+    step_type: Literal["action"]
+    action: Literal["format_document"]
+    inputs: List[str]
+
 class ApplyFiltersActionStepModel(BaseStepModel):
+    step_type: Literal["action"]
     action: Literal["apply_filters"]
     inputs: List[str]
 
 class CheckTermsInTextActionStepModel(BaseStepModel):
+    step_type: Literal["action"]
     action: Literal["check_terms_in_text"]
     inputs: List[List[str] | str]
+
+class GoToStepModel(BaseStepModel):
+    step_type: Literal["go_to"]
+    target_id: str
+
+class SetVariableStepModel(BaseStepModel):
+    step_type: Literal["set_variable"]
+    source: str
+
+class ForEachStepModel(BaseStepModel):
+    step_type: Literal["for_each"]
+    iterate_obj: str
+    step: "StepModel"
+
+class FormatListActionStepModel(BaseStepModel):
+    step_type: Literal["action"]
+    action: Literal["format_list"]
+    inputs: List[str]
+    format_template: str
+    separator: Optional[str] = "\n"
 
 StepModel = Union[
     LLMCallStepModel, 
     FormatDocumentsActionStepModel, 
+    FormatDocumentActionStepModel,
     CompositeStepModel, 
     IfStepModel, 
     ApplyFiltersActionStepModel, 
-    CheckTermsInTextActionStepModel
+    CheckTermsInTextActionStepModel,
+    GoToStepModel,
+    SetVariableStepModel,
+    ForEachStepModel,
+    FormatListActionStepModel
 ]
 
 CompositeStepModel.model_rebuild()
 IfStepModel.model_rebuild()
-
+ForEachStepModel.model_rebuild()
 # class StepWrapper(BaseModel):
 #     step: StepModel
 

@@ -35,3 +35,12 @@ los steps, el resultado se guardan en output. si es composite, se guarda el ulti
 si no hay resultado step por ejemplo en if false que es opcional.devuelve none y la clase princpal se encarga de devolver la anterior si existe. sino devuelve "no output"
 
 apply filters devuelve un objeto cuyo primer indice son los filtersd docs y el segundo indeice unmatch values.
+
+step_type: set variable
+source: valor que va a haber en la variable, expresion python. puede sacar del contexto,
+
+
+una posible implementacion a partir de observaciones de patrones en el caso de uso
+el tema de seguridad no esta contemplada
+
+solo acepta salidas json de un nivel de anidamiento y solo objeto no lista. los metadatos estan excluidos

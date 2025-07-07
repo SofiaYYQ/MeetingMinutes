@@ -1,4 +1,5 @@
 import json
+from types import SimpleNamespace
 from typing import Dict, List, Tuple, Union
 from llama_index.llms.ollama import Ollama
 from llama_index.core.workflow import Workflow, Event, StartEvent, StopEvent, step
@@ -47,25 +48,64 @@ class DocumentsBasedQAFlowExecutor():
 
     def run(self, query:str)->str:
         self.context["query"] = query
-        for s in self.workflow:
-            # step = step_logic_factory.create(s, global_context=self.context, llm_call = self.llm.complete, json_llm_call = self.get_valid_json_output)
+
+        
+        steps_by_id = {s.id: s for s in self.workflow}
+        step_ids = list(steps_by_id.keys())
+        current_step_index = 0
+        output = None
+
+        while current_step_index < len(step_ids):
+            step_id = step_ids[current_step_index]
+            s = steps_by_id[step_id]
+
             step = StepFactory.create(
-                s, 
-                global_context=self.context, 
-                llm_call = self.get_llm_output, 
-                json_llm_call = self.get_valid_json_output,
-                metadata_config = self.metadata_config
+                s,
+                global_context=self.context,
+                llm_call=self.get_llm_output,
+                json_llm_call=self.get_valid_json_output,
+                metadata_config=self.metadata_config
             )
+
             output = step.run()
+            
+            if isinstance(output, dict) and "go_to" in output:
+                target_id = output["go_to"]
+                if target_id in steps_by_id:
+                    current_step_index = step_ids.index(target_id)
+                    continue
+                else:
+                    raise ValueError(f"Destination step '{target_id}' not found.")
+                
             self.context[s.output] = output
+            current_step_index += 1
 
-        if output == None:
+        if output is None:
             context_values = list(self.context.values())
-            output = context_values[-1] if len(context_values) > 0 else "No output."
-    
-        self.reset()
+            output = context_values[-1] if context_values else "No output."
 
+        self.reset()
         return output
+
+        # for s in self.workflow:
+        #     # step = step_logic_factory.create(s, global_context=self.context, llm_call = self.llm.complete, json_llm_call = self.get_valid_json_output)
+        #     step = StepFactory.create(
+        #         s, 
+        #         global_context=self.context, 
+        #         llm_call = self.get_llm_output, 
+        #         json_llm_call = self.get_valid_json_output,
+        #         metadata_config = self.metadata_config
+        #     )
+        #     output = step.run()
+        #     self.context[s.output] = output
+
+        # if output == None:
+        #     context_values = list(self.context.values())
+        #     output = context_values[-1] if len(context_values) > 0 else "No output."
+    
+        # self.reset()
+
+        # return output
     
     def reset(self):
         self.step_results = {}
@@ -307,15 +347,15 @@ class DocumentsBasedQAFlowExecutor():
             try:
                 response = self.llm_json_output.complete(prompt)
                 response_str = self.process_complete_response(response)
-                datos = json.loads(response_str)
+                data = json.loads(response_str)
                 
                 if keys:
-                    if all([key in datos for key in keys]):
-                        self.logger.info("Valid JSON: %s", datos)
-                        return datos
+                    if all([key in data for key in keys]):
+                        self.logger.info("Valid JSON: %s", data)
+                        return data
                 else:
-                    self.logger.info("Valid JSON: %s", datos)
-                    return datos
+                    self.logger.info("Valid JSON: %s", data)
+                    return data
             except json.JSONDecodeError:
                 self.logger.info("Invalid JSON. Try it again.")
 

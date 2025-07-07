@@ -47,11 +47,11 @@ app:
     #   chunk_overlap: 0
 
   workflow:
-    - step:
+    - step_type: "composite"
       id: "filter_documents"
       output: "filtered_documents"
       steps:
-        - step:
+        - step_type: "llm_call"
           id: "get_person_name_from_query"
           prompt: |
             Extrae el nombre completo (nombre y apellidos) de la persona mencionada en la siguiente consulta. Si no se menciona ninguna persona, devuelve "None".
@@ -66,7 +66,7 @@ app:
           json_output: True
           output: name_obj
 
-        - step:
+        - step_type: "llm_call"
           id: "get_date_from_query"
           prompt: |
             Extrae la fecha mencionada en la siguiente consulta en formato DD/MM/AAAA. Si no se menciona ninguna fecha, devuelve "None".
@@ -84,11 +84,15 @@ app:
             CONSULTA: {query}
           json_output: True
           output: date_obj
-        - step:
+        - step_type: "action"
           id: "apply_filters"
           action: "apply_filters"
           inputs: ["documents", "name_obj", "date_obj"] # documentos y filtros
           output: apply_filters_results
+        - step_type: "set_variable" # igual se puede pasar a donde se creao
+          id: "set_filtered_documents"
+          source: "apply_filters_results[0]"
+          output: "filtered_documents"
         # - step:
         #   id: "check_filters"
         #   condition: name_obj["lista_asistentes"] and name_obj["lista_asistentes"] != "None" or date_obj["fecha"] and date_obj["fecha"] != "None"
@@ -116,112 +120,143 @@ app:
             #   #     id: "not_empty_filtered_docs"
             #   #     action: "move_to_step"
             #   #     inputs: ["check_query_type"]
-    - step:
+    - step_type: "composite"
       id: "check_query_type"
-      output: "check_type_result"
+      output: "subquery" # corregir para que no hace falta
       steps:
-        - step:
+        - step_type: "action"
           id: "check_comparative_query"
           action: "check_terms_in_text"
           inputs: [["mejor", "mejores", "peor", "peores", "superior", "superiores", "inferior", "inferiores",
             "mayor", "mayores", "menor", "menores", "más", "menos"], query]
           output: is_comparative_query
-        - step:
+        - step_type: "action"
           id: "check_global_query"
           action: "check_terms_in_text"
           inputs: [["reuniones"], query]
           output: is_global_query
-        # - step:
-        #   id: "check_global_and_not_comparative_query"
-        #   condition: "is_global_query and not is_comparative_query"
-        #   output: "output_prueba"
-        #   if_true:
-        #     - step:
-        #       id: "check_global_query2"
-        #       action: "check_terms_in_text"
-        #       inputs: [["reuniones"], query]
-        #       output: is_global_query2
+        - step_type: "if"
+          id: "check_global_and_not_comparative_query"
+          condition: "is_global_query and not is_comparative_query"
+          output: "subquery" # corregir para que no hace falta
+          if_true:
+            step_type: "composite"
+            id: "composite_transform_to_subquery"
+            output: "subquery" # corregir para que no hace falta
+            steps:
+            - step_type: "llm_call"
+              id: "transform_to_subquery" 
+              prompt: |
+                Transforma preguntas globales que requieren revisar múltiples documentos (como actas de reuniones) en preguntas individuales que puedan aplicarse a cada documento por separado.
+                Pasos:
+                1.	Identificar el sujeto y la acción de la oración:
+                2.	Convierte la pregunta global en una individual:
+                ¿[Acción] [Sujeto] [Por el complemento que se pregunta si existe, sino este documento]?
+                Ejemplo
+                Pregunta global: ¿En cuántos informes médicos se menciona a Laura Sánchez?
+                Pregunta individual: ¿Es mencionada Laura Sánchez en este informe médico?
 
-    # - step:
-    #   id: "transform_to_subquery" 
-    #   prompt: |
-    #     Transforma preguntas globales que requieren revisar múltiples documentos (como actas de reuniones) en preguntas individuales que puedan aplicarse a cada documento por separado.
-    #     Pasos:
-    #     1.	Identificar el sujeto y la acción de la oración:
-    #     2.	Convierte la pregunta global en una individual:
-    #     ¿[Acción] [Sujeto] [Por el complemento que se pregunta si existe, sino este documento]?
-    #     Ejemplo
-    #     Pregunta global: ¿En cuántos informes médicos se menciona a Laura Sánchez?
-    #     Pregunta individual: ¿Es mencionada Laura Sánchez en este informe médico?
+                Ejemplo
+                Pregunta global: ¿Cuántas veces aparece el nombre de Javier Torres?
+                Pregunta individual: ¿Aparece el nombre de Javier Torres en este documento?
+                            
+                Transforma ahora la siguiente pregunta global en una pregunta individual aplicable a un solo documento. 
+                Pregunta global: {query}
 
-    #     Ejemplo
-    #     Pregunta global: ¿Cuántas veces aparece el nombre de Javier Torres?
-    #     Pregunta individual: ¿Aparece el nombre de Javier Torres en este documento?
-                    
-    #     Transforma ahora la siguiente pregunta global en una pregunta individual aplicable a un solo documento. 
-    #     Pregunta global: {query}
+                Responde en formato json con dos claves "pregunta_global", "pregunta_individual":
+                {{
+                    "pregunta_global":"pregunta original",
+                    "pregunta_individual":"pregunta transformada"
+                }}
+              json_output: True
+              output: get_subquery_result
+            - step_type: "set_variable"
+              id: "set_subquery"
+              source: "get_subquery_result['pregunta_individual']"
+              output: "subquery"
+          if_false:
+            step_type: "if"
+            id: "check_comparative_query"
+            condition: "is_comparative_query"
+            output: "no_output"
+            if_true:
+              step_type: "go_to"
+              id: "from_check_global_and_not_comparative_query_to_get_final_response"
+              target_id: "format_documents"
+              output: "no_output"
+            if_false:
+              step_type: "set_variable"
+              id: "set_subquery_for_individual_query"
+              source: "query"
+              output: "subquery"
+    # - step_type: "set_variable" # igual se puede pasar a donde se creao
+    #   id: "set_filtered_documents"
+    #   source: "apply_filters_results[0]"
+    #   output: "filtered_documents"
+    - step_type: "for_each"
+      id: "generate_responses_by_document"
+      iterate_obj: "filtered_documents"
+      step:
+        step_type: "composite"
+        id: "composite_get_response_by_document"
+        output: "evidence" # corregir para que no hace falta
+        steps:
+          - step_type: "action" # igual se puede pasar a donde se creao
+            id: "format_document_for_get_response_by_document"
+            action: "format_document"
+            inputs: ["item"]
+            output: document_str
+          - step_type: "llm_call"
+            id: "get_response_by_document"
+            json_output: True
+            prompt: |
+              Contexto:
+              {document_str}
 
-    #     Responde en formato json con dos claves "pregunta_global", "pregunta_individual":
-    #     {{
-    #         "pregunta_global":"pregunta original",
-    #         "pregunta_individual":"pregunta transformada"
-    #     }}
-    #   json_output: True
-    #   output: subquery
-    # - step:
-    #   id: "select_query"
-    #   action: "choose"
-    #   inputs: ["not is_global_query", query, subquery]
-    #   output: "effective_query"
-    # - step:
-    #   id: "get_information"
-    #   condition: "not is_comparative_query"
-    #   if_true:
-    #     - step:
-    #       foreach: filtered_documents
-    #       prompt: |
-    #         Contexto:
-    #         {document_str}
+              Analiza el documento proporcionado y utiliza esa información para responder con precisión a la siguiente pregunta.
 
-    #         Analiza el documento proporcionado y utiliza esa información para responder con precisión a la siguiente pregunta.
+              Instrucciones:
 
-    #         Instrucciones:
+              1. Identifica los datos del documento de donde proviene la información, incluyendo el nombre del archivo y la fecha de la reunión.
 
-    #         1. Identifica los datos del documento de donde proviene la información, incluyendo el nombre del archivo y la fecha de la reunión.
+              2. Redacta una respuesta clara, completa y contextualizada, que:
+              - Sea directa, bien fundamentada y autónoma.
 
-    #         2. Redacta una respuesta clara, completa y contextualizada, que:
-    #         - Sea directa, bien fundamentada y autónoma.
+              - Incluya explícitamente el sujeto, la acción y los datos de identificación del documento (como el nombre del archivo, fecha de reunión) dentro del cuerpo de la respuesta, para que quede claro a qué documento se refiere.
 
-    #         - Incluya explícitamente el sujeto, la acción y los datos de identificación del documento (como el nombre del archivo, fecha de reunión) dentro del cuerpo de la respuesta, para que quede claro a qué documento se refiere.
-
-    #         - Evite respuestas fragmentadas (por ejemplo, no uses "Sí, llegó", usa "Sí, Ángel llegó el viernes, según el documento [nombre del documento y otros datos de identificacón del documento]").
-            
-    #         3. Incluye evidencia textual relevante extraída del documento para respaldar tu respuesta. Esta puede ser una cita directa o un resumen claro y preciso.
+              - Evite respuestas fragmentadas (por ejemplo, no uses "Sí, llegó", usa "Sí, Ángel llegó el viernes, según el documento [nombre del documento y otros datos de identificacón del documento]").
+              
+              3. Incluye evidencia textual relevante extraída del documento para respaldar tu respuesta. Esta puede ser una cita directa o un resumen claro y preciso.
 
 
-    #         Formato de salida (JSON):
-    #         {{
-    #         "pregunta": "(escribe aquí la pregunta original)",
-    #         "respuesta": "(respuesta clara, completa, con contexto y referencia explícita al documento)",
-    #         "evidencia": "(cita textual o resumen de la evidencia encontrada en el documento)"
-    #         }}
-    #         Pregunta: {query}
-    #       output: evidences # Falta la parte de evaluación de 5 veces una evidencia
-    # - step:
-    #   id: "generate info_str"
-    #   condition: "not is_comparative_query"
-    #   if_true:
-    #     - step:
-    #       id: "format evidences"
-    #       action: "format"
-    #       inputs: [evidences, ""]
-    #       output: info_str
-    #   is_false:
-    #     - step:
-    #       id: "format documents"
-    #       action: "format"
-    #       inputs: [filtered_documents, "item"]
-    #       output: info_str
+              Formato de salida (JSON):
+              {{
+              "nombre_fichero": "(extrae el nombre del fichero analizado)",
+              "fecha": "(extrae la fecha que aparece en el fichero analizado)",
+              "pregunta": "(escribe aquí la pregunta original)",
+              "respuesta": "(respuesta clara, completa, con contexto y referencia explícita al documento)",
+              "evidencia": "(cita textual o resumen de la evidencia encontrada en el documento)"
+              }}
+              Pregunta: {subquery}
+            output: evidence
+          # - step_type: "llm_call"
+          #   id: "evaluate"
+          #   json_output: True
+          #   prompt: |
+          #     Evalúa si la respuesta está respaldada por el contenido del documento proporcionado. Indica si la información mencionada en la respuesta se encuentra explícitamente en el texto o si ha sido inferida o inventada.
+          #     Documento: 
+          #     {document_str}
+
+          #     Respuesta: {answer}
+
+          #     Responde en formato json con dos claves: "evaluation" y "justification" de tipo string
+          #     {{
+          #         "evaluation":"Elegir una de las tres opciones: [Explícita/Inferida/Inventada]",
+          #         "justification":"Solo si es necesario"
+          #     }}
+          #   output: evaluation_results
+
+      output: evidences # Falta la parte de evaluación de 5 veces una evidencia
     # - step:
     #   id: "get_final_response"
     #   prompt: |
@@ -233,12 +268,22 @@ app:
 
     #     Consulta del usuario: {query}
     #   output: final_response
-    - step:
+    - step_type: "action"
+      id: "format_list"
+      action: "format_list"
+      inputs: ["evidences"]
+      format_template: "- Documento {nombre_fichero}({fecha}): {respuesta} (Evidencia textual: {evidencia})\n"
+      output: info_str
+    - step_type: "go_to"
+      id: "go_to_get_final_response"
+      target_id: "get_final_response"
+      output: "no_output" # quitar para que no sea obligatorio
+    - step_type: "action"
       id: "format_documents"
       action: "format_documents"
-      inputs: ["documents"]
+      inputs: ["filtered_documents"]
       output: info_str
-    - step:
+    - step_type: "llm_call"
       id: "get_final_response"
       prompt: |
         Dada la información del contexto, responde a la consulta del usuario:
