@@ -90,11 +90,11 @@ class Main(LoggerMixin):
         workflow = self.full_config.app.workflow
         try:
             documents = StaticDataProcessor.load_pdf_documents(data_folder_path)
-            # for d in documents:
-            #     metadata = LLMCallManager.get_document_all_metadata_by_custom_llm(metadata_llm_json_output, metadata_config, d.text)
-            #     d.metadata.update(metadata)
-            #     doc_filename = d.metadata["file_name"]
-            #     self.logger.info(f"Extracted Metadata for the document {doc_filename}: {metadata}")
+            for d in documents:
+                metadata = LLMCallManager.get_document_all_metadata_by_custom_llm(metadata_llm_json_output, metadata_config, d.text)
+                d.metadata.update(metadata)
+                doc_filename = d.metadata["file_name"]
+                self.logger.info(f"Extracted Metadata for the document {doc_filename}: {metadata}")
 
             # flow = QwenDocumentsBasedQAFlow(workflow_llm, workflow_llm_json_output, timeout=600, verbose=True)
             # execution = WorkflowEvaluationModeExecution(flow, evaluation_config, documents)

@@ -64,7 +64,7 @@ class DataProcessingConfig(BaseModel):
 
 class BaseStepModel(BaseModel):
     id: str
-    output: str
+    output: Optional[str] = None
 
 class CompositeStepModel(BaseStepModel):
     step_type: Literal["composite"]
@@ -113,6 +113,7 @@ class ForEachStepModel(BaseStepModel):
     step_type: Literal["for_each"]
     iterate_obj: str
     step: "StepModel"
+    collected_field: Optional[str] = None
 
 class FormatListActionStepModel(BaseStepModel):
     step_type: Literal["action"]
@@ -140,7 +141,7 @@ class EvaluateActionStepModel(BaseStepModel):
     condition:str
     prompt: str
     json_output: Optional[bool] = False
-
+    
 StepModel = Union[
     LLMCallStepModel, 
     FormatDocumentsActionStepModel, 

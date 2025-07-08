@@ -5,15 +5,10 @@ app:
     # "chat", "evaluate", "normal" 
     execute_mode: "evaluate"
     llm:
-        # Puede no ser necesario, si no se indica el base_url, pues no se usa un server
-        # use_server: true 
-        # base_url: "http://156.35.95.18:11434"
-        
-        model_name: "qwen3:4b"
-        # embedding_model_name: "snowflake-arctic-embed2"
-        request_timeout: 600.0
-        # system_prompt: "Responde siempre en español"
-        temperature: 0.3
+      model_name: "qwen3:4b"
+      request_timeout: 600.0
+      # system_prompt: "Responde siempre en español"
+      temperature: 0.3
     
   evaluation_config:
     questions_file_path: "dataset/questions/1-questions_persons.txt"
@@ -42,14 +37,10 @@ app:
         - name: "secretario"
           type: "str"
           description: "Es el nombre del secretorio o secretaria de la reunión."
-    # chunks_config:
-    #   chunk_size: 512
-    #   chunk_overlap: 0
 
   workflow:
     - step_type: "composite"
       id: "filter_documents"
-      output: "filtered_documents"
       steps:
         - step_type: "llm_call"
           id: "get_person_name_from_query"
@@ -92,7 +83,6 @@ app:
         - step_type: "if"
           id: "check_number_valid_filters"
           condition: len(apply_filters_results[2]) == 0
-          output: "no_output"
           if_true:
             step_type: "action"
             id: "add_to_memory_documents_filtering_no_filters"
@@ -100,17 +90,14 @@ app:
             name: "Filtrado de documentos"
             description: "Se identifican y excluyen los documentos que no cumplen con los criterios establecidos en la consulta."
             result: "A partir de la consulta '{query}', no se han extraído ningún filtro. Por lo tanto no se excluyen ningún documento."
-            output: "no_output" # quitar para que no sea obligatorio
           if_false:
             step_type: "if"
             id: "check_number_filtered_documents"
             condition: "len(apply_filters_results[0]) == 0"
-            output: "no_output" # quitar para que no sea obligatorio
             if_true:
               step_type: "action"
               id: "add_to_memory_documents_filtering_with_filtered_documents"
               action: "add_to_memory"
-              output: "no_output" # quitar para que no sea obligatorio
               name: "Filtrado de documentos"
               description: "Se identifican y excluyen los documentos que no cumplen con los criterios establecidos en la consulta."
               result: | 
@@ -134,17 +121,12 @@ app:
                 A partir de la consulta '{query}', se han identificado los siguientes filtros aplicables: {apply_filters_results[2]}. 
                 Se han revisado todos los documentos disponibles y se han excluido aquellos que no coinciden con los filtros especificados.
                 Los documentos que no cumplen con estos criterios son los siguientes: {apply_filters_results[3]}
-              output: "no_output" # quitar para que no sea obligatorio
-
         - step_type: "set_variable" # igual se puede pasar a donde se creao
           id: "set_filtered_documents"
           source: "apply_filters_results[0]"
           output: "filtered_documents"
-
-            
     - step_type: "composite"
       id: "check_query_type"
-      output: "subquery" # corregir para que no hace falta
       steps:
         - step_type: "action"
           id: "check_comparative_query"
@@ -160,11 +142,9 @@ app:
         - step_type: "if"
           id: "check_global_and_not_comparative_query"
           condition: "is_global_query and not is_comparative_query"
-          output: "subquery" # corregir para que no hace falta
           if_true:
             step_type: "composite"
             id: "composite_transform_to_subquery"
-            output: "subquery" # corregir para que no hace falta
             steps:
             - step_type: "llm_call"
               id: "transform_to_subquery" 
@@ -204,20 +184,13 @@ app:
                 Se clasifica la consulta como global o individual.
                 Una consulta global (normal o comparativa) requiere obtener información de múltiples reuniones, mientras que una consulta individual se centra en una única reunión.
               result: "Según el análisis, la consulta '{query}' es de tipo global y no comparativa. Por ello, se obtiene una subconsulta para preguntar a cada reunión: {subquery}"
-              output: "no_output" # quitar para que no sea obligatorio
-            - step_type: "set_variable" #elimnar
-              id: "set_subquery2"
-              source: "subquery"
-              output: "subquery"
           if_false:
             step_type: "if"
             id: "check_comparative_query"
             condition: "is_comparative_query"
-            output: "no_output" 
             if_true:
               step_type: "composite"
               id: "check_comparative_query_if_true_composite"
-              output: "no_output" # quitar para que no sea obligatorio
               steps:
                 - step_type: "action"
                   id: "add_to_memory_type_analysis_global"
@@ -227,15 +200,12 @@ app:
                     Se clasifica la consulta como global o individual.
                     Una consulta global (normal o comparativa) requiere obtener información de múltiples reuniones, mientras que una consulta individual se centra en una única reunión.
                   result: "Según el análisis, la consulta '{query}' es de tipo global y comparativa. En este caso, no se tranforma en una subconsulta."
-                  output: "no_output" # quitar para que no sea obligatorio
                 - step_type: "go_to"
                   id: "from_check_global_and_not_comparative_query_to_get_final_response"
                   target_id: "format_documents"
-                  output: "no_output"
             if_false:
               step_type: "composite"
               id: "check_comparative_query_if_false_composite"
-              output: "no_output" # quitar para que no sea obligatorio
               steps:
                 - step_type: "action"
                   id: "add_to_memory_type_analysis_individual"
@@ -245,7 +215,6 @@ app:
                     Se clasifica la consulta como global o individual.
                     Una consulta global (normal o comparativa) requiere obtener información de múltiples reuniones, mientras que una consulta individual se centra en una única reunión.
                   result: Según el análisis, la consulta '{query}' es de tipo individual. Por ello, no hay necesidad de transformarla en una subconsulta.
-                  output: "no_output" # quitar para que no sea obligatorio
                 - step_type: "set_variable"
                   id: "set_subquery_for_individual_query"
                   source: "query"
@@ -254,131 +223,69 @@ app:
     - step_type: "for_each"
       id: "generate_responses_by_document"
       iterate_obj: "filtered_documents"
+      collected_field: "evidence"
       step:
         step_type: "composite"
         id: "composite_get_response_by_document"
-        output: "evidence" # corregir para que no hace falta
         steps:
-          - step_type: "action" # igual se puede pasar a donde se creao
+          - step_type: "action"
             id: "format_document_for_get_response_by_document"
             action: "format_document"
             inputs: ["item"]
             output: document_str
-          # - step_type: "action"
-          #   action: "evaluate"
-          #   step: 
-          #     step_type: "llm_call"
-          #     id: "get_response_by_document"
-          #     json_output: True
-          #     prompt: |
-          #       Contexto:
-          #       {document_str}
+          - step_type: "action"
+            id: "check_hallucination"
+            action: "evaluate"
+            step: 
+              step_type: "llm_call"
+              id: "get_response_by_document"
+              json_output: True
+              prompt: |
+                Contexto:
+                {document_str}
 
-          #       Analiza el documento proporcionado y utiliza esa información para responder con precisión a la siguiente pregunta.
+                Analiza el documento proporcionado y utiliza esa información para responder con precisión a la siguiente pregunta.
 
-          #       Instrucciones:
+                Instrucciones:
 
-          #       1. Identifica los datos del documento de donde proviene la información, incluyendo el nombre del archivo y la fecha de la reunión.
+                1. Identifica los datos del documento de donde proviene la información, incluyendo el nombre del archivo y la fecha de la reunión.
 
-          #       2. Redacta una respuesta clara, completa y contextualizada, que:
-          #       - Sea directa, bien fundamentada y autónoma.
+                2. Redacta una respuesta clara, completa y contextualizada, que:
+                - Sea directa, bien fundamentada y autónoma.
 
-          #       - Incluya explícitamente el sujeto, la acción y los datos de identificación del documento (como el nombre del archivo, fecha de reunión) dentro del cuerpo de la respuesta, para que quede claro a qué documento se refiere.
+                - Incluya explícitamente el sujeto, la acción y los datos de identificación del documento (como el nombre del archivo, fecha de reunión) dentro del cuerpo de la respuesta, para que quede claro a qué documento se refiere.
 
-          #       - Evite respuestas fragmentadas (por ejemplo, no uses "Sí, llegó", usa "Sí, Ángel llegó el viernes, según el documento [nombre del documento y otros datos de identificacón del documento]").
+                - Evite respuestas fragmentadas (por ejemplo, no uses "Sí, llegó", usa "Sí, Ángel llegó el viernes, según el documento [nombre del documento y otros datos de identificacón del documento]").
                 
-          #       3. Incluye evidencia textual relevante extraída del documento para respaldar tu respuesta. Esta puede ser una cita directa o un resumen claro y preciso.
+                3. Incluye evidencia textual relevante extraída del documento para respaldar tu respuesta. Esta puede ser una cita directa o un resumen claro y preciso.
 
 
-          #       Formato de salida (JSON):
-          #       {{
-          #       "nombre_fichero": "(extrae el nombre del fichero analizado)",
-          #       "fecha": "(extrae la fecha que aparece en el fichero analizado)",
-          #       "pregunta": "(escribe aquí la pregunta original)",
-          #       "respuesta": "(respuesta clara, completa, con contexto y referencia explícita al documento)",
-          #       "evidencia": "(cita textual o resumen de la evidencia encontrada en el documento)"
-          #       }}
-          #       Pregunta: {subquery}
-          #     output: evidence
-          #   json_output: True
-          #   prompt: |
-          #     Evalúa si la respuesta está respaldada por el contenido del documento proporcionado. Indica si la información mencionada en la respuesta se encuentra explícitamente en el texto o si ha sido inferida o inventada.
-          #     Documento: 
-          #     {document_str}
-
-          #     Respuesta: {evidence.respuesta}
-
-          #     Responde en formato json con dos claves: "evaluation" y "justification" de tipo string
-          #     {{
-          #         "evaluation":"Elegir una de las tres opciones: [Explícita/Inferida/Inventada]",
-          #         "justification":"Solo si es necesario"
-          #     }}
-          #   output: evaluation_results
-
-          - step_type: "llm_call"
-            id: "get_response_by_document"
+                Formato de salida (JSON):
+                {{
+                "nombre_fichero": "(extrae el nombre del fichero analizado)",
+                "fecha": "(extrae la fecha que aparece en el fichero analizado)",
+                "pregunta": "(escribe aquí la pregunta original)",
+                "respuesta": "(respuesta clara, completa, con contexto y referencia explícita al documento)",
+                "evidencia": "(cita textual o resumen de la evidencia encontrada en el documento)"
+                }}
+                Pregunta: {subquery}
+              output: evidence
             json_output: True
             prompt: |
-              Contexto:
+              Evalúa si la respuesta está respaldada por el contenido del documento proporcionado. Indica si la información mencionada en la respuesta se encuentra explícitamente en el texto o si ha sido inferida o inventada.
+              Documento: 
               {document_str}
 
-              Analiza el documento proporcionado y utiliza esa información para responder con precisión a la siguiente pregunta.
+              Respuesta: {evidence.respuesta}
 
-              Instrucciones:
-
-              1. Identifica los datos del documento de donde proviene la información, incluyendo el nombre del archivo y la fecha de la reunión.
-
-              2. Redacta una respuesta clara, completa y contextualizada, que:
-              - Sea directa, bien fundamentada y autónoma.
-
-              - Incluya explícitamente el sujeto, la acción y los datos de identificación del documento (como el nombre del archivo, fecha de reunión) dentro del cuerpo de la respuesta, para que quede claro a qué documento se refiere.
-
-              - Evite respuestas fragmentadas (por ejemplo, no uses "Sí, llegó", usa "Sí, Ángel llegó el viernes, según el documento [nombre del documento y otros datos de identificacón del documento]").
-              
-              3. Incluye evidencia textual relevante extraída del documento para respaldar tu respuesta. Esta puede ser una cita directa o un resumen claro y preciso.
-
-
-              Formato de salida (JSON):
+              Responde en formato json con dos claves: "evaluation" y "justification" de tipo string
               {{
-              "nombre_fichero": "(extrae el nombre del fichero analizado)",
-              "fecha": "(extrae la fecha que aparece en el fichero analizado)",
-              "pregunta": "(escribe aquí la pregunta original)",
-              "respuesta": "(respuesta clara, completa, con contexto y referencia explícita al documento)",
-              "evidencia": "(cita textual o resumen de la evidencia encontrada en el documento)"
+                  "evaluation":"Elegir una de las tres opciones: [Explícita/Inferida/Inventada]",
+                  "justification":"Solo si es necesario"
               }}
-              Pregunta: {subquery}
-            output: evidence
-          # - step_type: "llm_call"
-          #   id: "evaluate"
-          #   json_output: True
-          #   prompt: |
-          #     Evalúa si la respuesta está respaldada por el contenido del documento proporcionado. Indica si la información mencionada en la respuesta se encuentra explícitamente en el texto o si ha sido inferida o inventada.
-          #     Documento: 
-          #     {document_str}
-
-          #     Respuesta: {evidence.respuesta}
-
-          #     Responde en formato json con dos claves: "evaluation" y "justification" de tipo string
-          #     {{
-          #         "evaluation":"Elegir una de las tres opciones: [Explícita/Inferida/Inventada]",
-          #         "justification":"Solo si es necesario"
-          #     }}
-          #   output: evaluation_results
-          # - step_type: "if"
-          #   id: "check_hallucination"
-          #   condition: "evaluation_results.evaluation == 'Inventada'"
-          #   output: "evidence" # quitar para que no sea asi
-          #   if_true:
-          #     step_type: "go_to"
-          #     id: "regenerate_response"
-          #     target_id: "get_response_by_document"
-          #     output: "no_output" # quitar para que no sea obligatorio
-          #   if_false:
-          #     step_type: "set_variable" # no hace falta si se permitiera modificar contexto directamente.
-          #     id: "set_evidence"
-          #     source: "evidence"
-          #     output: "evidence"
-      output: evidences # Falta la parte de evaluación de 5 veces una evidencia
+            output: evaluation_results
+            condition: "evaluation_results.evaluation != 'Inventada'"
+      output: evidences 
     - step_type: "action"
       id: "format_list"
       action: "format_list"
@@ -388,7 +295,6 @@ app:
     - step_type: "go_to"
       id: "go_to_add_to_memory_info_gathering"
       target_id: "add_to_memory_info_gathering"
-      output: "no_output" # quitar para que no sea obligatorio
     - step_type: "action"
       id: "format_documents"
       action: "format_documents"
@@ -400,7 +306,6 @@ app:
       name: "Recopilación de información"
       description: "Se extrae información relevante de cada documento previamente filtrado mediante la consulta, con el objetivo de obtener los datos necesarios para su posterior análisis."
       result: "Se ha recopilado la siguiente información:\n {info_str}"
-      output: "no_output" # quitar para que no sea obligatorio
     - step_type: "action"
       action: "format_memory"
       id: "final_format_memory"

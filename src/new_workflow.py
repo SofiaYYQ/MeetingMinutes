@@ -1,6 +1,6 @@
 import json
 from types import SimpleNamespace
-from typing import Dict, List, Tuple, Union
+from typing import Any, Dict, List, Tuple, Union
 from llama_index.llms.ollama import Ollama
 from llama_index.core.workflow import Workflow, Event, StartEvent, StopEvent, step
 # import asyncio
@@ -53,7 +53,10 @@ class DocumentsBasedQAFlowExecutor():
                 "result": result,
             }
         )
+    def add_to_context(self, key:str, value:Any):
+        self.context[key] = value
 
+        
     def format_memory(self):
         return "".join(
             f"Paso {i}: {step['name']}\nDescripción: {step['description']}\nResultado: {step['result']}\n\n"
@@ -81,7 +84,8 @@ class DocumentsBasedQAFlowExecutor():
                 json_llm_call=self.get_valid_json_output,
                 metadata_config=self.metadata_config,
                 add_to_memory = self.add_to_memory,
-                format_memory = self.format_memory
+                format_memory = self.format_memory,
+                add_to_context = self.add_to_context
             )
 
             output = step.run()
@@ -94,7 +98,7 @@ class DocumentsBasedQAFlowExecutor():
                 else:
                     raise ValueError(f"Destination step '{target_id}' not found.")
                 
-            self.context[s.output] = output
+            # self.context[s.output] = output
             current_step_index += 1
 
         if output is None:
