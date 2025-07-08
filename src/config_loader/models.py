@@ -64,7 +64,6 @@ class DataProcessingConfig(BaseModel):
 
 class BaseStepModel(BaseModel):
     id: str
-    output: Optional[str] = None
 
 class CompositeStepModel(BaseStepModel):
     step_type: Literal["composite"]
@@ -80,26 +79,31 @@ class LLMCallStepModel(BaseStepModel):
     step_type: Literal["llm_call"]
     prompt: str
     json_output: Optional[bool] = False
+    output: str
 
 class FormatDocumentsActionStepModel(BaseStepModel):
     step_type: Literal["action"]
     action: Literal["format_documents"]
     inputs: List[str]
+    output: str
 
 class FormatDocumentActionStepModel(BaseStepModel):
     step_type: Literal["action"]
     action: Literal["format_document"]
     inputs: List[str]
+    output: str
 
 class ApplyFiltersActionStepModel(BaseStepModel):
     step_type: Literal["action"]
     action: Literal["apply_filters"]
     inputs: List[str]
+    output: str
 
 class CheckTermsInTextActionStepModel(BaseStepModel):
     step_type: Literal["action"]
     action: Literal["check_terms_in_text"]
     inputs: List[List[str] | str]
+    output: str
 
 class GoToStepModel(BaseStepModel):
     step_type: Literal["go_to"]
@@ -108,12 +112,14 @@ class GoToStepModel(BaseStepModel):
 class SetVariableStepModel(BaseStepModel):
     step_type: Literal["set_variable"]
     source: str
+    output: str
 
 class ForEachStepModel(BaseStepModel):
     step_type: Literal["for_each"]
     iterate_obj: str
     step: "StepModel"
     collected_field: Optional[str] = None
+    output: Optional[str] = None
 
 class FormatListActionStepModel(BaseStepModel):
     step_type: Literal["action"]
@@ -121,6 +127,7 @@ class FormatListActionStepModel(BaseStepModel):
     inputs: List[str]
     format_template: str
     separator: Optional[str] = "\n"
+    output: str
 
 class AddToMemoryActionStepModel(BaseStepModel):
     step_type: Literal["action"]
@@ -132,6 +139,7 @@ class AddToMemoryActionStepModel(BaseStepModel):
 class FormatMemoryActionStepModel(BaseStepModel):
     step_type: Literal["action"]
     action: Literal["format_memory"]
+    output: str
 
 class EvaluateActionStepModel(BaseStepModel):
     step_type: Literal["action"]
@@ -141,6 +149,7 @@ class EvaluateActionStepModel(BaseStepModel):
     condition:str
     prompt: str
     json_output: Optional[bool] = False
+    output: str
     
 StepModel = Union[
     LLMCallStepModel, 
@@ -162,8 +171,6 @@ StepModel = Union[
 CompositeStepModel.model_rebuild()
 IfStepModel.model_rebuild()
 ForEachStepModel.model_rebuild()
-# class StepWrapper(BaseModel):
-#     step: StepModel
 
 class AppConfig(BaseModel):
     log: LogConfig
