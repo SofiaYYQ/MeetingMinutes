@@ -9,12 +9,9 @@ class ExecuteMode(str, Enum):
     EVALUATE = 'evaluate'
     NORMAL = 'normal'
 
-
 class LLMConfig(BaseModel):
-    # use_server: bool
     base_url: Optional[str] = None
     model_name: str
-    # embedding_model_name: str
     request_timeout: Optional[float] = Field(default=None, ge=0.0)
     system_prompt: Optional[str] = None
     temperature: Optional[float] = Field(default=None, ge=0.0, le=1.0)
@@ -51,10 +48,6 @@ class MetadataConfig(VectorStoreInfo):
 
     # class Config:
     #     allow_population_by_field_name = True
-
-# class ChunksConfig(BaseModel):
-#     chunk_size: int = Field(ge=0)
-#     chunk_overlap: int = Field(ge=0)
 
 class DataProcessingConfig(BaseModel):
     data_folder_path: str

@@ -25,34 +25,6 @@ class LLMCallManager(metaclass=SingletonMeta):
         response = self.llm.complete(prompt)
         result = json.loads(response.text)
         return result
-    
-#     @staticmethod
-#     def get_document_all_metadata_by_custom_llm(llm: LLM, vector_store_info:VectorStoreInfo, document:str):
-#         metadata_infos = vector_store_info.metadata_info
-#         metadata_fields = [m.name for m in metadata_infos]
-#         strs_to_prompt = []
-#         for i, metadata_info in enumerate(metadata_infos):
-#             str_to_prompt = f"{i+1}) '{metadata_info.name}' (De tipo {metadata_info.type}. {metadata_info.description})"
-#             strs_to_prompt.append(str_to_prompt)
-
-#         keys_str='\n'.join(strs_to_prompt)
-#         has_all_metadata = False
-#         while not has_all_metadata:
-            
-#             prompt = f"""
-#             Extrae información del contexto en formato JSON con {len(metadata_infos)} claves: 
-#             {keys_str}
-            
-#             No incluyas ningún texto adicional fuera del JSON. 
-#             Contexto: 
-#             {document}
-
-# """         
-#             response = llm.complete(prompt)
-#             result = json.loads(response.text)
-#             has_all_metadata = Utils.has_required_fields(result, metadata_fields)
-        
-#         return result
 
     @staticmethod
     def get_document_all_metadata_by_custom_llm(llm: LLM, vector_store_info: VectorStoreInfo, document: str):

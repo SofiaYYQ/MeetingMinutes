@@ -1,11 +1,8 @@
 from abc import ABC, abstractmethod
 import re
-from types import SimpleNamespace
-from typing import Any, Callable, List
+from typing import Any, Callable
 from llama_index.core.prompts.utils import format_string
-from llama_index.core.schema import Document
 
-# from config_loader.builder_register import StepFactory
 from config_loader.models import AddToMemoryActionStepModel, ApplyFiltersActionStepModel, BaseStepModel, CheckTermsInTextActionStepModel, CompositeStepModel, EvaluateActionStepModel, ForEachStepModel, FormatDocumentsActionStepModel, FormatListActionStepModel, FormatMemoryActionStepModel, GoToStepModel, IfStepModel, LLMCallStepModel, MetadataConfig, SetVariableStepModel, FormatDocumentActionStepModel
 from logger_manager import LoggerMixin
 from utils.utils import Utils
@@ -140,12 +137,6 @@ class CompositeStep(Step):
             if isinstance(output, dict) and "go_to" in output:
                 return output
             
-            # self.local_context[s.output] = output
-
-        # if output == None:
-        #     local_context_values = list(self.local_context.values())
-        #     output = local_context_values[-1] if len(local_context_values) > 0 else None
-
         return output
     
 class IfStep(Step):
@@ -162,7 +153,6 @@ class IfStep(Step):
         condition = self.model.condition
         output = None
         isTrue = self.evaluate_condition(condition, self.global_context)
-        # if_false es opcional, entonces se puede dar que output devuelva None
         s = self.model.if_true if isTrue else self.model.if_false  
 
         if s:

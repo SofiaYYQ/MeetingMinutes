@@ -1,7 +1,5 @@
 
 import json
-from llama_index.llms.ollama import Ollama
-from llama_index.core.vector_stores.types import VectorStoreInfo
 
 from metaclasses import SingletonMeta
 from config_loader.models import LLMConfig

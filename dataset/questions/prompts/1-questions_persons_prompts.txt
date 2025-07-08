@@ -1,1 +1,36 @@
 Responde ÚNICAMENTE con 'Sí' o 'No' sin puntos, comas ni texto adicional.
+Responde ÚNICAMENTE con 'Sí' o 'No' sin puntos, comas ni texto adicional.
+Responde SOLO con el nombre completo de la persona (Ejemplo: 'María González Rojos), sin puntos, comas ni texto adicional.
+Responde SOLO con el nombre completo de la persona (Ejemplo: 'María González Rojos), sin puntos, comas ni texto adicional.
+Responde SOLO con el número (en dígitos) sin puntos, comas ni texto.
+Responde SOLO con el número (en dígitos) sin puntos, comas ni texto.
+Responde SOLO con el número (en dígitos) sin puntos, comas ni texto.
+Responde ÚNICAMENTE con 'N/A' (si no participó en ninguna reunión) o con una o más fechas de las reuniones separadas por comas, en formato DD/MM/AAAA (Ejemplo: '15/03/2023, 22/04/2023, 10/05/2023'). Sin puntos ni texto adicional.
+Responde ÚNICAMENTE con 'N/A' (si no participó en ninguna reunión) o con una o más fechas de las reuniones separadas por comas, en formato DD/MM/AAAA (Ejemplo: '15/03/2023, 22/04/2023, 10/05/2023'). Sin puntos ni texto adicional.
+Responde ÚNICAMENTE con 'N/A' (si no participó en ninguna reunión) o con una o más fechas de las reuniones separadas por comas, en formato DD/MM/AAAA (Ejemplo: '15/03/2023, 22/04/2023, 10/05/2023'). Sin puntos ni texto adicional.
+Responde SOLO con el número (en dígitos) sin puntos, comas ni texto.
+Responde SOLO con el número (en dígitos) sin puntos, comas ni texto.
+Responde ÚNICAMENTE con 'N/A' (si no ha sido en ningna reunión) o con una o más fechas de las reuniones separadas por comas, en formato DD/MM/AAAA (Ejemplo: '15/03/2023, 22/04/2023, 10/05/2023'). Sin puntos ni texto adicional.
+Responde ÚNICAMENTE con 'N/A' (si no ha sido en ningna reunión) o con una o más fechas de las reuniones separadas por comas, en formato DD/MM/AAAA (Ejemplo: '15/03/2023, 22/04/2023, 10/05/2023'). Sin puntos ni texto adicional.
+Responde SOLO con el número (en dígitos) sin puntos, comas ni texto.
+Responde SOLO con nombres completos separados por comas (Ejemplo: 'María González Rojos, Luis Pérez López'), sin texto adicional.
+Responde ÚNICAMENTE con una fecha o más fechas de las reuniones separadas por comas, en formato DD/MM/AAAA (Ejemplo: '15/03/2023, 22/04/2023, 10/05/2023'). Sin puntos ni texto adicional.
+Responde SOLO el nombre completo de la persona (Ejemplo: 'María González Rojos) o nombres completos separados por comas si hay empate (Ejemplo: 'María González Rojos, Luis Pérez López'). Sin puntos ni texto adicional.
+Responde ÚNICAMENTE con 'Sí' o 'No' sin puntos, comas ni texto adicional.
+Responde ÚNICAMENTE con 'Sí' o 'No' sin puntos, comas ni texto adicional.
+Responde SOLO con el nombre completo de la persona (Ejemplo: 'María González Rojos), sin puntos, comas ni texto adicional.
+Responde SOLO con el nombre completo de la persona (Ejemplo: 'María González Rojos), sin puntos, comas ni texto adicional.
+Responde SOLO con el número (en dígitos) sin puntos, comas ni texto.
+Responde SOLO con el número (en dígitos) sin puntos, comas ni texto.
+Responde SOLO con el número (en dígitos) sin puntos, comas ni texto.
+Responde ÚNICAMENTE con 'N/A' (si no participó en ninguna reunión) o con una o más fechas de las reuniones separadas por comas, en formato DD/MM/AAAA (Ejemplo: '15/03/2023, 22/04/2023, 10/05/2023'). Sin puntos ni texto adicional.
+Responde ÚNICAMENTE con 'N/A' (si no participó en ninguna reunión) o con una o más fechas de las reuniones separadas por comas, en formato DD/MM/AAAA (Ejemplo: '15/03/2023, 22/04/2023, 10/05/2023'). Sin puntos ni texto adicional.
+Responde ÚNICAMENTE con 'N/A' (si no participó en ninguna reunión) o con una o más fechas de las reuniones separadas por comas, en formato DD/MM/AAAA (Ejemplo: '15/03/2023, 22/04/2023, 10/05/2023'). Sin puntos ni texto adicional.
+Responde SOLO con el número (en dígitos) sin puntos, comas ni texto.
+Responde SOLO con el número (en dígitos) sin puntos, comas ni texto.
+Responde ÚNICAMENTE con 'N/A' (si no ha sido en ningna reunión) o con una o más fechas de las reuniones separadas por comas, en formato DD/MM/AAAA (Ejemplo: '15/03/2023, 22/04/2023, 10/05/2023'). Sin puntos ni texto adicional.
+Responde ÚNICAMENTE con 'N/A' (si no ha sido en ningna reunión) o con una o más fechas de las reuniones separadas por comas, en formato DD/MM/AAAA (Ejemplo: '15/03/2023, 22/04/2023, 10/05/2023'). Sin puntos ni texto adicional.
+Responde SOLO con el número (en dígitos) sin puntos, comas ni texto.
+Responde SOLO con nombres completos separados por comas (Ejemplo: 'María González Rojos, Luis Pérez López'), sin texto adicional.
+Responde ÚNICAMENTE con una fecha o más fechas de las reuniones separadas por comas, en formato DD/MM/AAAA (Ejemplo: '15/03/2023, 22/04/2023, 10/05/2023'). Sin puntos ni texto adicional.
+Responde SOLO el nombre completo de la persona (Ejemplo: 'María González Rojos) o nombres completos separados por comas si hay empate (Ejemplo: 'María González Rojos, Luis Pérez López'). Sin puntos ni texto adicional.
