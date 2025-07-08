@@ -1,11 +1,12 @@
 from abc import ABC, abstractmethod
 import re
+from types import SimpleNamespace
 from typing import Any, List
 from llama_index.core.prompts.utils import format_string
 from llama_index.core.schema import Document
 
 # from config_loader.builder_register import StepFactory
-from config_loader.models import ApplyFiltersActionStepModel, BaseStepModel, CheckTermsInTextActionStepModel, CompositeStepModel, ForEachStepModel, FormatDocumentsActionStepModel, FormatListActionStepModel, GoToStepModel, IfStepModel, LLMCallStepModel, MetadataConfig, SetVariableStepModel, FormatDocumentActionStepModel
+from config_loader.models import AddToMemoryActionStepModel, ApplyFiltersActionStepModel, BaseStepModel, CheckTermsInTextActionStepModel, CompositeStepModel, EvaluateActionStepModel, ForEachStepModel, FormatDocumentsActionStepModel, FormatListActionStepModel, FormatMemoryActionStepModel, GoToStepModel, IfStepModel, LLMCallStepModel, MetadataConfig, SetVariableStepModel, FormatDocumentActionStepModel
 from logger_manager import LoggerMixin
 from utils.utils import Utils
 
@@ -29,7 +30,12 @@ class LLMCallStep(Step):
         selected_llm_call = self.json_llm_call if self.model.json_output else self.llm_call
         
         formatted_prompt = format_string(self.model.prompt, **self.global_context)
-        return selected_llm_call(formatted_prompt)
+        
+        self.logger.info(f"Prompt. Step \"{self.model.id}\": {formatted_prompt}")
+        result = selected_llm_call(formatted_prompt)
+        self.logger.info(f"Output. Step \"{self.model.id}\": {str(result)}")
+
+        return result
 
 
 class FormatDocumentsActionStep(Step):
@@ -85,14 +91,25 @@ class FormatDocumentActionStep(Step):
 
     
 class CompositeStep(Step):
-    def __init__(self, model:CompositeStepModel, global_context: dict[str, Any], llm_call, json_llm_call, metadata_config:MetadataConfig):
+    def __init__(
+        self, 
+        model:CompositeStepModel, 
+        global_context: dict[str, Any], 
+        llm_call, 
+        json_llm_call, 
+        metadata_config:MetadataConfig, 
+        add_to_memory, 
+        format_memory
+    ):
         super().__init__(global_context)
         self.model = model
         self.local_context = {}
         self.llm_call = llm_call
         self.json_llm_call = json_llm_call
         self.metadata_config = metadata_config
-    
+        self.add_to_memory = add_to_memory
+        self.format_memory = format_memory
+
     def run(self):
         for s in self.model.steps:
             step = StepFactory.create(
@@ -100,7 +117,9 @@ class CompositeStep(Step):
                 global_context = self.global_context | self.local_context, 
                 llm_call = self.llm_call, 
                 json_llm_call = self.json_llm_call,
-                metadata_config = self.metadata_config
+                metadata_config = self.metadata_config,
+                add_to_memory = self.add_to_memory,
+                format_memory = self.format_memory
             )
             output = step.run()
 
@@ -116,12 +135,14 @@ class CompositeStep(Step):
         return output
     
 class IfStep(Step):
-    def __init__(self, model:IfStepModel, global_context: dict[str, Any], llm_call, json_llm_call, metadata_config):
+    def __init__(self, model:IfStepModel, global_context: dict[str, Any], llm_call, json_llm_call, metadata_config, add_to_memory, format_memory):
         super().__init__(global_context)
         self.model = model
         self.llm_call = llm_call
         self.json_llm_call = json_llm_call
         self.metadata_config = metadata_config
+        self.add_to_memory = add_to_memory
+        self.format_memory = format_memory
 
     def run(self):
         condition = self.model.condition
@@ -136,7 +157,9 @@ class IfStep(Step):
                 global_context = self.global_context, 
                 llm_call = self.llm_call, 
                 json_llm_call = self.json_llm_call,
-                metadata_condig = self.metadata_config
+                metadata_config = self.metadata_config,
+                add_to_memory = self.add_to_memory,
+                format_memory = self.format_memory
             )
             output = step.run()
 
@@ -162,11 +185,20 @@ class ApplyFiltersActionStep(Step):
     def group_filters(self):
         all_filters = self.model.inputs[1:]
         all_filters_objs = [self.global_context.get(f) for f in all_filters]
-        return {k: v for d in all_filters_objs for k, v in d.items() if v is not None and v != "None"}
+
+        combined_attrs = {}
+
+        for obj in all_filters_objs:
+            for k, v in vars(obj).items():
+                if v is not None and v != "None":
+                    combined_attrs[k] = v
+
+        return combined_attrs
 
     def run(self):
         filtered = []
         unmatched_values = list(self.filters.values())
+        discarded = []
         for doc in self.documents:
             doc_matched = True
 
@@ -189,9 +221,11 @@ class ApplyFiltersActionStep(Step):
                         
             if doc_matched:
                 filtered.append(doc)
+            else:
+                discarded.append(str(doc.metadata.get("file_name", "")))
 
 
-        return filtered, unmatched_values
+        return filtered, unmatched_values, self.filters, discarded
 
 class CheckTermsInTextActionStep(Step):
     def __init__(self, model:CheckTermsInTextActionStepModel, global_context: dict[str, Any]):
@@ -231,12 +265,14 @@ class SetVariableStep(Step):
             return None
 
 class ForEachStep(Step):
-    def __init__(self, model:ForEachStepModel, global_context: dict[str, Any], llm_call, json_llm_call, metadata_config: MetadataConfig):
+    def __init__(self, model:ForEachStepModel, global_context: dict[str, Any], llm_call, json_llm_call, metadata_config: MetadataConfig, add_to_memory, format_memory):
         super().__init__(global_context)
         self.model = model
         self.llm_call = llm_call
         self.json_llm_call = json_llm_call
         self.metadata_config = metadata_config
+        self.add_to_memory = add_to_memory
+        self.format_memory = format_memory
 
     def run(self):
         iterable_obj = self.global_context.get(self.model.iterate_obj)
@@ -247,7 +283,9 @@ class ForEachStep(Step):
                 global_context = self.global_context | {"item": item}, 
                 llm_call = self.llm_call, 
                 json_llm_call = self.json_llm_call,
-                metadata_condig = self.metadata_config
+                metadata_config = self.metadata_config,
+                add_to_memory = self.add_to_memory,
+                format_memory = self.format_memory
             )
             output = step.run()
             outputs.append(output)
@@ -263,10 +301,64 @@ class FormatListActionStep(Step):
         self.separator = self.model.separator
 
     def run(self):
-        formatted_items = [self.format_template.format(**item) for item in self.items]
+        formatted_items = [self.format_template.format(item=item) for item in self.items]
         result = self.separator.join(formatted_items)
         return result
 
+class AddToMemoryActionStep(Step):
+    def __init__(self, model:AddToMemoryActionStepModel, global_context: dict[str, Any], add_to_memory):
+        super().__init__(global_context)
+        self.model = model
+        self.add_to_memory = add_to_memory
+
+    def run(self):
+        self.add_to_memory(
+            self.model.name,
+            self.model.description,
+            format_string(self.model.result, **self.global_context),
+        )
+
+        return None
+
+class FormatMemoryActionStep(Step):
+    def __init__(self, model:AddToMemoryActionStepModel, global_context: dict[str, Any], format_memory):
+        super().__init__(global_context)
+        self.model = model
+        self.format_memory = format_memory
+
+    def run(self):
+        result = self.format_memory()
+        return result
+
+# class EvaluateActionStep(Step):
+#     def __init__(self, model:EvaluateActionStepModel, global_context, llm_call, json_llm_call):
+#         super().__init__(global_context)
+#         self.model = model
+#         self.llm_call = llm_call
+#         self.json_llm_call = json_llm_call
+
+#     def run(self):
+#         selected_llm_call = self.json_llm_call if self.model.json_output else self.llm_call
+        
+#         step = StepFactory.create(
+#             self.model.step,
+#             global_context = self.global_context | {"item": item}, 
+#             llm_call = self.llm_call, 
+#             json_llm_call = self.json_llm_call,
+#             metadata_config = self.metadata_config,
+#             add_to_memory = self.add_to_memory,
+#             format_memory = self.format_memory
+#         )
+#         output = step.run()
+
+#         formatted_prompt = format_string(self.model.prompt, **self.global_context)
+        
+#         self.logger.info(f"Prompt. Step \"{self.model.id}\": {formatted_prompt}")
+#         result = selected_llm_call(formatted_prompt)
+#         self.logger.info(f"Output. Step \"{self.model.id}\": {str(result)}")
+
+#         return result
+    
 class StepFactory:
     @staticmethod
     def create(model: BaseStepModel, **kwargs) -> Step:
@@ -295,7 +387,9 @@ class StepFactory:
                 global_context = kwargs.get("global_context"),
                 llm_call = kwargs.get("llm_call"),
                 json_llm_call = kwargs.get("json_llm_call"),
-                metadata_config = kwargs.get("metadata_config")
+                metadata_config = kwargs.get("metadata_config"),
+                add_to_memory = kwargs.get("add_to_memory"),
+                format_memory = kwargs.get("format_memory")
             )
         elif isinstance(model, ApplyFiltersActionStepModel):
             return ApplyFiltersActionStep(
@@ -313,7 +407,9 @@ class StepFactory:
                 global_context = kwargs.get("global_context"),
                 llm_call = kwargs.get("llm_call"),
                 json_llm_call = kwargs.get("json_llm_call"),
-                metadata_config = kwargs.get("metadata_config")
+                metadata_config = kwargs.get("metadata_config"),
+                add_to_memory = kwargs.get("add_to_memory"),
+                format_memory = kwargs.get("format_memory")
             )
         elif isinstance(model, GoToStepModel):
             return GoToStep(
@@ -331,12 +427,26 @@ class StepFactory:
                 global_context = kwargs.get("global_context"),
                 llm_call = kwargs.get("llm_call"),
                 json_llm_call = kwargs.get("json_llm_call"),
-                metadata_config = kwargs.get("metadata_config")
+                metadata_config = kwargs.get("metadata_config"),
+                add_to_memory = kwargs.get("add_to_memory"),
+                format_memory = kwargs.get("format_memory")
             )
         elif isinstance(model, FormatListActionStepModel):
             return FormatListActionStep(
                 model, 
                 global_context = kwargs.get("global_context")
+            )
+        elif isinstance(model, AddToMemoryActionStepModel):
+            return AddToMemoryActionStep(
+                model, 
+                global_context = kwargs.get("global_context"),
+                add_to_memory = kwargs.get("add_to_memory")
+            )
+        elif isinstance(model, FormatMemoryActionStepModel):
+            return FormatMemoryActionStep(
+                model, 
+                global_context = kwargs.get("global_context"),
+                format_memory = kwargs.get("format_memory")
             )
         else:
             raise ValueError(f"No logic builder registered for model {type(model).__name__}")

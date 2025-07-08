@@ -44,3 +44,8 @@ una posible implementacion a partir de observaciones de patrones en el caso de u
 el tema de seguridad no esta contemplada
 
 solo acepta salidas json de un nivel de anidamiento y solo objeto no lista. los metadatos estan excluidos
+
+add_to_memory
+solo description es formateada, puede contener {variable}
+
+evaluation en dsl es infinito si siempre da que esta inventada

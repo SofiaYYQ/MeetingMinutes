@@ -45,6 +45,21 @@ class DocumentsBasedQAFlowExecutor():
         self.context = {}
         self.context["documents"] = documents
     
+    def add_to_memory(self, name:str, description:str, result:str):
+        self.step_results.append(
+            {
+                "name": name,
+                "description": description,
+                "result": result,
+            }
+        )
+
+    def format_memory(self):
+        return "".join(
+            f"Paso {i}: {step['name']}\nDescripción: {step['description']}\nResultado: {step['result']}\n\n"
+            for i, step in enumerate(self.step_results, 1)
+        )
+
 
     def run(self, query:str)->str:
         self.context["query"] = query
@@ -64,7 +79,9 @@ class DocumentsBasedQAFlowExecutor():
                 global_context=self.context,
                 llm_call=self.get_llm_output,
                 json_llm_call=self.get_valid_json_output,
-                metadata_config=self.metadata_config
+                metadata_config=self.metadata_config,
+                add_to_memory = self.add_to_memory,
+                format_memory = self.format_memory
             )
 
             output = step.run()
@@ -349,13 +366,15 @@ class DocumentsBasedQAFlowExecutor():
                 response_str = self.process_complete_response(response)
                 data = json.loads(response_str)
                 
+                obj = SimpleNamespace(**data)
+
                 if keys:
                     if all([key in data for key in keys]):
                         self.logger.info("Valid JSON: %s", data)
-                        return data
+                        return obj
                 else:
                     self.logger.info("Valid JSON: %s", data)
-                    return data
+                    return obj
             except json.JSONDecodeError:
                 self.logger.info("Invalid JSON. Try it again.")
 

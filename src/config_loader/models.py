@@ -121,6 +121,26 @@ class FormatListActionStepModel(BaseStepModel):
     format_template: str
     separator: Optional[str] = "\n"
 
+class AddToMemoryActionStepModel(BaseStepModel):
+    step_type: Literal["action"]
+    action: Literal["add_to_memory"]
+    name: str
+    description: str
+    result: str
+
+class FormatMemoryActionStepModel(BaseStepModel):
+    step_type: Literal["action"]
+    action: Literal["format_memory"]
+
+class EvaluateActionStepModel(BaseStepModel):
+    step_type: Literal["action"]
+    action: Literal["evaluate"]
+    max_intents: int = Field(default=5, gt=0)
+    step: LLMCallStepModel
+    condition:str
+    prompt: str
+    json_output: Optional[bool] = False
+
 StepModel = Union[
     LLMCallStepModel, 
     FormatDocumentsActionStepModel, 
@@ -132,7 +152,10 @@ StepModel = Union[
     GoToStepModel,
     SetVariableStepModel,
     ForEachStepModel,
-    FormatListActionStepModel
+    FormatListActionStepModel,
+    AddToMemoryActionStepModel,
+    FormatMemoryActionStepModel,
+    EvaluateActionStepModel
 ]
 
 CompositeStepModel.model_rebuild()
