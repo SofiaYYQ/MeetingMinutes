@@ -129,7 +129,7 @@ class DocumentsBasedQAFlowExecutor():
         # return output
     
     def reset(self):
-        self.step_results = {}
+        self.step_results = []
         self.context = {}
         self.context["documents"] = self.documents
 

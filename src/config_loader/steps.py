@@ -344,7 +344,7 @@ class AddToMemoryActionStep(Step):
         self.add_to_memory(
             self.model.name,
             self.model.description,
-            format_string(self.model.result, **self.global_context),
+            self.model.result.format(**self.global_context),
         )
 
 class FormatMemoryActionStep(Step):
