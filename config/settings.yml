@@ -2,7 +2,7 @@ app:
   log:
     log_level: "INFO"
   general:
-    # "chat", "evaluate", "normal" 
+    # "evaluate", "normal" 
     execute_mode: "evaluate"
     llm:
       model_name: "qwen3:4b"

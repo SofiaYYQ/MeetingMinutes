@@ -211,15 +211,21 @@ class ReActAgentEvaluationModeExecution(LoggerMixin):
 
         # AccuracyEvaluator.get_results(f"{reports_folder_path}/{filename}.csv", questions, answers, responses)
 
-
-
-class ExecutorEvaluationModeExecution(LoggerMixin):
-    def __init__(self, executor: DocumentsBasedQAFlowExecutor, evaluation_config: EvaluationConfig, documents:List[Document]):
+class DSLBasedWorkflowModeExecution(ABC, LoggerMixin):
+    def __init__(self, executor: DocumentsBasedQAFlowExecutor):
         super().__init__()
         self.executor = executor
+        
+
+    @abstractmethod
+    def run(self):
+        pass
+
+class ExecutorEvaluationModeExecution(DSLBasedWorkflowModeExecution):
+    def __init__(self, executor: DocumentsBasedQAFlowExecutor, evaluation_config: EvaluationConfig):
+        super().__init__(executor)
         self.evaluation_config = evaluation_config
         self.validator = EvaluationModeValidator()
-        self.documents = documents
 
     def run(self):
         self._process_questions()
@@ -263,3 +269,27 @@ class ExecutorEvaluationModeExecution(LoggerMixin):
         AccuracyEvaluator.get_accuracy_results(f"{reports_folder_path}/{filename}.csv", questions, answers, responses, formatted_real_responses)
 
         # AccuracyEvaluator.get_results(f"{reports_folder_path}/{filename}.csv", questions, answers, responses)
+
+
+class ExecutorQueryModeExecution(DSLBasedWorkflowModeExecution):
+    def run(self):
+        print("Escribe \"salir\", \"exit\" o \"quit\" para salir.\n")
+        while True:
+            query = input("Escribe tu consulta: ")
+            if query.lower() in ["salir", "exit", "quit"]:
+                print("👋 Terminando motor de consultas.")
+                break
+            
+            response_text = self.executor.run(
+                query=query
+            )
+            # transformed_query = self.rag_manager.query_response_processor.transform(query, "")
+            # transformed_query = self.rag_manager.query_response_processor.transform(query)
+            # response = self.rag_manager.query_engine.query(transformed_query)
+            # response_text = self.rag_manager.query_response_processor.process(response)
+
+            if response_text != "":
+                print("✅ Resultado:")
+                print(response_text)
+            else:
+                print("⚠️ No se encontraron resultados.")

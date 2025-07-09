@@ -5,7 +5,7 @@ from typing import List, Literal, Optional, Union
 from llama_index.core.vector_stores.types import VectorStoreInfo, MetadataInfo
 
 class ExecuteMode(str, Enum):
-    CHAT = 'chat'
+    # CHAT = 'chat'
     EVALUATE = 'evaluate'
     NORMAL = 'normal'
 

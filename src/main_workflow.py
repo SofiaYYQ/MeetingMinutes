@@ -1,9 +1,9 @@
 import asyncio
 from config_loader.config_loader import ConfigLoader
-from config_loader.models import EvaluationConfig, LLMConfig
+from config_loader.models import EvaluationConfig, ExecuteMode, LLMConfig
 
 from data_processors.static_data_processor import StaticDataProcessor
-from executions.workflow_executions import ExecutorEvaluationModeExecution, WorkflowEvaluationModeExecution
+from executions.workflow_executions import ExecutorEvaluationModeExecution, ExecutorQueryModeExecution, WorkflowEvaluationModeExecution
 from logger_manager import LoggerManager, LoggerMixin
 from new_workflow import DocumentsBasedQAFlowExecutor
 from qwen_workflow import QwenDocumentsBasedQAFlow
@@ -108,9 +108,18 @@ class Main(LoggerMixin):
             #     d.metadata.update(metadata)
             #     doc_filename = d.metadata["file_name"]
             #     self.logger.info(f"Extracted Metadata for the document {doc_filename}: {metadata}")
-
+            execute_mode = full_config.app.general.execute_mode
+            
+            execution = None
             executor = DocumentsBasedQAFlowExecutor(workflow_llm, workflow_llm_json_output, metadata_config, documents, workflow)
-            execution = ExecutorEvaluationModeExecution(executor, evaluation_config, documents)
+            
+
+            if execute_mode == ExecuteMode.EVALUATE:
+                execution = ExecutorEvaluationModeExecution(executor, evaluation_config)
+            elif execute_mode == ExecuteMode.NORMAL:
+                execution = ExecutorQueryModeExecution(executor)
+            
+            
             execution.run()
         except Exception as e:  # Captura cualquier otra excepción
             self.logger.info("An unexpected error occurred:", e)
