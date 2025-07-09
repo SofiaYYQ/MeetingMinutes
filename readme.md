@@ -27,8 +27,28 @@
 - `.env`
   Es necesario establecer `PYTHONPATH=src` en este fichero para que los comandos posteriores se ejecuten correctamente, ya que esto permite que Python reconozca el directorio de código fuente como parte del entorno de búsqueda de módulos.
 
+## 🛠 Instalación necesaria
 
-## Evaluación
+Para poner en marcha el proyecto, asegúrate de seguir estos pasos:
+
+### 1. Instalar Ollama localmente
+- Permite ejecutar modelos de lenguaje en tu máquina sin necesidad de conexión externa.
+- Consulta la documentación oficial para tu sistema operativo: https://ollama.com
+
+### 2. Instalar Python
+- Asegúrate de tener Python instalado (recomendado: versión 3.10 o superior).
+- Puedes verificarlo con:
+  ```bash
+  python --version
+  ```
+
+### 3. Instalar dependencias del proyecto
+- Desde la raíz del proyecto, ejecuta en la terminal:
+  ```bash
+  pip install -r requirements.txt
+  ```
+
+## Ejecución del procedimiento de evaluación
 Existe 3 configuraciones distintas para evaluar los modelos. Antes de la ejecución del comando, es necesario establecer el modelo a evaluar dentro de cada fichero correspondiente. 
 
 1. Usa la configuración por defecto
