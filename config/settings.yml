@@ -36,7 +36,7 @@ app:
           description: "Es el nombre del presidente o presidenta de la reunión."
         - name: "secretario"
           type: "str"
-          description: "Es el nombre del secretorio o secretaria de la reunión."
+          description: "Es el nombre del secretario o secretaria de la reunión."
 
   workflow:
     - step_type: "composite"

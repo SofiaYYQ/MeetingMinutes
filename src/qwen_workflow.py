@@ -30,27 +30,6 @@ VECTOR_STORE_INFO = VectorStoreInfo(
                 "Es la fecha en la que se celebró la reunión. Está en formato DD/MM/AAAA."
             ),
         ),
-        # MetadataInfo(
-        #     name="hora_inicio",
-        #     type="str",
-        #     description=(
-        #         "Es la hora en la que se inició la reunión. Está en formato HH:MM"
-        #     ),
-        # ),
-        # MetadataInfo(
-        #     name="hora_fin",
-        #     type="str",
-        #     description=(
-        #         "Es la hora en la que se terminó la reunión. Está en formato HH:MM"
-        #     ),
-        # ),
-        # MetadataInfo(
-        #     name="lugar",
-        #     type="str",
-        #     description=(
-        #         "Es el lugar donde se celebró la reunión."
-        #     ),
-        # ),
         MetadataInfo(
             name="num_asistentes",
             type="int",
@@ -76,7 +55,7 @@ VECTOR_STORE_INFO = VectorStoreInfo(
             name="secretario",
             type="str",
             description=(
-                "Es el nombre del secretorio o secretaria de la reunión."
+                "Es el nombre del secretario o secretaria de la reunión."
             ),
         ),
     ],
