@@ -2,22 +2,11 @@ import json
 from typing import Dict, List, Tuple, Union
 from llama_index.llms.ollama import Ollama
 from llama_index.core.workflow import Workflow, Event, StartEvent, StopEvent, step
-# import asyncio
 from llama_index.core.schema import Document
-# from llama_index.core.prompts.utils import format_string
-# from config_loader.builders import KeywordsExtractorCreator
-# from config_loader.models import KeyBertKeywordsExtractorConfig, KeywordsExtractorsConfig, NLPKeywordsExtractorConfig
-# from data_processors.static_data_processor import StaticDataProcessor
 from logger_manager import LoggerManager
-
-# from llama_index.core import Settings
 from llama_index.core.vector_stores.types import MetadataInfo, VectorStoreInfo
-
-# from query_engines.key_extractors import IKeywordsExtractor
 from utils.llm_call_manager import LLMCallManager
-# from utils.sql_parser import SQLParser
 import re
-# from llama_index.core.llms.llm import LLM
 
 
 VECTOR_STORE_INFO = VectorStoreInfo(

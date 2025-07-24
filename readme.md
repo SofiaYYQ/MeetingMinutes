@@ -53,22 +53,22 @@ Existe 3 configuraciones distintas para evaluar los modelos. Antes de la ejecuci
 
 1. Usa la configuración por defecto
 ```bash
-python main_base_model_evaluation.py
+python src\main_base_model_evaluation.py
 ```
 
 2. Usa el agente de Llamaindex
 ```bash
-python main_reactagent_evaluation.py
+python src\main_reactagent_evaluation.py
 ```
 
 3. Usa el enfoque propuesto
 - Con DSL
 ```bash
-python main_workflow.py
+python src\main_workflow.py
 ```
 - Sin DSL
 ```bash
-python main_workflow_without_dsl.py
+python src\main_workflow_without_dsl.py
 ```
 
 ## Ejecución de pruebas con `pytest`

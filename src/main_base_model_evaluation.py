@@ -1,6 +1,4 @@
-import os
-from typing import List
-from config_loader.models import EvaluationConfig, LLMConfig, LogConfig
+from config_loader.models import EvaluationConfig, LLMConfig
 from data_processors.static_data_processor import StaticDataProcessor
 from executions.workflow_executions import BaselineEvaluationModeExecution
 from logger_manager import LoggerManager, LoggerMixin
@@ -14,7 +12,6 @@ class Main(LoggerMixin):
     def __init__(self, model_name):
         super().__init__()
         self.model_name = model_name
-        # self.llm = LLMS[model_name]
 
         
     def run(self):

@@ -1,9 +1,7 @@
 import asyncio
-import os
-from typing import List
 from config_loader.models import EvaluationConfig, LLMConfig, LogConfig
 from data_processors.static_data_processor import StaticDataProcessor
-from executions.workflow_executions import BaselineEvaluationModeExecution, ReActAgentEvaluationModeExecution
+from executions.workflow_executions import ReActAgentEvaluationModeExecution
 from logger_manager import LoggerManager, LoggerMixin
 
 from utils.evaluation_mode_validator import EvaluationModeValidator
@@ -15,7 +13,6 @@ class Main(LoggerMixin):
     def __init__(self, model_name):
         super().__init__()
         self.model_name = model_name
-        # self.llm = LLMS[model_name]
 
         
     async def run(self):
@@ -27,8 +24,8 @@ class Main(LoggerMixin):
             temperature= 0.3
         )
         validator_llm_config = LLMConfig(
-            model_name ="gemma3:27b", 
-            base_url="http://156.35.95.18:11434",
+            model_name ="gemma3:12b", 
+            # base_url="http://156.35.95.18:11434",
             embedding_model_name= "snowflake-arctic-embed2",
             request_timeout= 600.0,
         )
@@ -56,8 +53,8 @@ class Main(LoggerMixin):
 if __name__ == "__main__":
     models_name = [
         # "llama3.2", 
-        # "llama3.2:3b", 
-        "gemma3:4b", 
+        "llama3.2:3b", 
+        # "gemma3:4b", 
         # "qwen3:4b",
         # "phi3:3.8b",
 
