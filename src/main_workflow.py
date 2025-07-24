@@ -24,7 +24,6 @@ class Main(LoggerMixin):
         validator_llm_config = LLMConfig(
             model_name ="llama3.2", 
             # base_url="http://156.35.95.18:11434", 
-            # embedding_model_name= "snowflake-arctic-embed2",
             request_timeout= 600.0,
         )
 

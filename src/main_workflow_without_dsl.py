@@ -65,14 +65,12 @@ class Main(LoggerMixin):
         llm_config = LLMConfig(
             model_name= "qwen3:4b",
             # base_url = "http://localhost:11434",
-            embedding_model_name= "snowflake-arctic-embed2",
             request_timeout= 600.0,
             temperature= 0.3
         )
         validator_llm_config = LLMConfig(
             model_name ="llama3.2", 
             # base_url="http://156.35.95.18:11434", 
-            embedding_model_name= "snowflake-arctic-embed2",
             request_timeout= 600.0,
         )
         evaluation_config = EvaluationConfig(

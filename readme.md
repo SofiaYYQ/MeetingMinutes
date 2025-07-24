@@ -71,6 +71,11 @@ python src\main_workflow.py
 python src\main_workflow_without_dsl.py
 ```
 
+## Ejecución del agente con interfaz streamlit
+  ```bash
+  streamlit run src\main_chatbot_without_dsl.py
+  ```
+
 ## Ejecución de pruebas con `pytest`
 
 Desde el directorio raíz del proyecto, ejecuta el siguiente comando en la terminal:

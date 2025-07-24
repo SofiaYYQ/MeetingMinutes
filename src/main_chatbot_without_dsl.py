@@ -18,14 +18,12 @@ def get_rag_manager():
     llm_config = LLMConfig(
         model_name= "qwen3:4b",
         # base_url = "http://localhost:11434",
-        embedding_model_name= "snowflake-arctic-embed2",
         request_timeout= 600.0,
         temperature= 0.3
     )
     validator_llm_config = LLMConfig(
         model_name ="llama3.2", 
-        base_url="http://156.35.95.18:11434", 
-        embedding_model_name= "snowflake-arctic-embed2",
+        # base_url="http://156.35.95.18:11434", 
         request_timeout= 600.0,
     )
 
@@ -36,13 +34,13 @@ def get_rag_manager():
 
     workflow_llm = Ollama(
         model="qwen3:4b", 
-        base_url="http://156.35.95.18:11434", 
+        # base_url="http://156.35.95.18:11434", 
         temperature=0.3, 
         request_timeout=600.0
     )
     workflow_llm_json_output = Ollama(
         model="qwen3:4b", 
-        base_url="http://156.35.95.18:11434", 
+        # base_url="http://156.35.95.18:11434", 
         temperature=0.3, 
         request_timeout=600.0, 
         json_mode=True
@@ -80,7 +78,7 @@ def load_data():
         if "documents" not in st.session_state:
             metadata_llm_json_output = Ollama(
                 model="llama3.2", 
-                base_url="http://156.35.95.18:11434", 
+                # base_url="http://156.35.95.18:11434", 
                 temperature=0.3, 
                 request_timeout=600.0, 
                 json_mode=True
