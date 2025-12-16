@@ -35,6 +35,7 @@ class WorkflowEvaluationModeExecution(WorkflowModeExecution):
         self.evaluation_config = evaluation_config
         self.validator = EvaluationModeValidator()
         self.documents = documents
+        # self.model_name = model_name
 
     async def run(self):
         await self._process_questions()
@@ -69,13 +70,17 @@ class WorkflowEvaluationModeExecution(WorkflowModeExecution):
 
         # Get the questions file name (without .txt extension and parent folders)
         questions_file_name = os.path.splitext(os.path.basename(questions_file_path))[0]
-    
+
+        # model_name = self.llm.model.replace(":", "_")
+
         # filename = Utils.get_analysis_output_name(questions_file_name, self.full_config)
         filename = Utils.get_testing_analysis_output_name(questions_file_name)
 
+        os.makedirs(results_folder_path, exist_ok=True)
         FileHandler.write_to_txt(f"{results_folder_path}/{filename}.txt", responses)
 
         formatted_real_responses = self.validator.get_formatted_answers(responses, prompts)
+        os.makedirs(reports_folder_path, exist_ok=True)
         AccuracyEvaluator.get_accuracy_results(f"{reports_folder_path}/{filename}.csv", questions, answers, responses, formatted_real_responses)
 
         # AccuracyEvaluator.get_results(f"{reports_folder_path}/{filename}.csv", questions, answers, responses)

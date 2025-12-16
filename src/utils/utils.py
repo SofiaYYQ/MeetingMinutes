@@ -13,7 +13,7 @@ class Utils():
 
         parts = []
         parts.append(prefix)
-        parts.append("-prueba")
+        parts.append("-testing")
         parts.append(f"-{current_datetime}")
         
         filename = "".join(parts)

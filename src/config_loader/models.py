@@ -22,10 +22,6 @@ class LLMConfig(BaseModel):
         
         return data
     
-    def model_dump_for_create_embed_model(self):
-        data = self.model_dump(exclude_none=True, include={"base_url", "embedding_model_name"})
-        data['model_name'] = data.pop('embedding_model_name')
-        return data
 
 
 class GeneralConfig(BaseModel):
@@ -54,123 +50,11 @@ class DataProcessingConfig(BaseModel):
     metadata_config: MetadataConfig
     # chunks_config: ChunksConfig
 
-
-class BaseStepModel(BaseModel):
-    id: str
-
-class CompositeStepModel(BaseStepModel):
-    step_type: Literal["composite"]
-    steps: List["StepModel"]
-
-class IfStepModel(BaseStepModel):
-    step_type: Literal["if"]
-    condition: str
-    if_true: "StepModel"
-    if_false: Optional["StepModel"] = None
-
-class LLMCallStepModel(BaseStepModel):
-    step_type: Literal["llm_call"]
-    prompt: str
-    json_output: Optional[bool] = False
-    output: str
-
-class FormatDocumentsActionStepModel(BaseStepModel):
-    step_type: Literal["action"]
-    action: Literal["format_documents"]
-    inputs: List[str]
-    output: str
-
-class FormatDocumentActionStepModel(BaseStepModel):
-    step_type: Literal["action"]
-    action: Literal["format_document"]
-    inputs: List[str]
-    output: str
-
-class ApplyFiltersActionStepModel(BaseStepModel):
-    step_type: Literal["action"]
-    action: Literal["apply_filters"]
-    inputs: List[str]
-    output: str
-
-class CheckTermsInTextActionStepModel(BaseStepModel):
-    step_type: Literal["action"]
-    action: Literal["check_terms_in_text"]
-    inputs: List[List[str] | str]
-    output: str
-
-class GoToStepModel(BaseStepModel):
-    step_type: Literal["go_to"]
-    target_id: str
-
-class SetVariableStepModel(BaseStepModel):
-    step_type: Literal["set_variable"]
-    source: str
-    output: str
-
-class ForEachStepModel(BaseStepModel):
-    step_type: Literal["for_each"]
-    iterate_obj: str
-    step: "StepModel"
-    collected_field: Optional[str] = None
-    output: Optional[str] = None
-
-class FormatListActionStepModel(BaseStepModel):
-    step_type: Literal["action"]
-    action: Literal["format_list"]
-    inputs: List[str]
-    format_template: str
-    separator: Optional[str] = "\n"
-    output: str
-
-class AddToMemoryActionStepModel(BaseStepModel):
-    step_type: Literal["action"]
-    action: Literal["add_to_memory"]
-    name: str
-    description: str
-    result: str
-
-class FormatMemoryActionStepModel(BaseStepModel):
-    step_type: Literal["action"]
-    action: Literal["format_memory"]
-    output: str
-
-class EvaluateActionStepModel(BaseStepModel):
-    step_type: Literal["action"]
-    action: Literal["evaluate"]
-    max_intents: int = Field(default=5, gt=0)
-    step: LLMCallStepModel
-    condition:str
-    prompt: str
-    json_output: Optional[bool] = False
-    output: str
-    
-StepModel = Union[
-    LLMCallStepModel, 
-    FormatDocumentsActionStepModel, 
-    FormatDocumentActionStepModel,
-    CompositeStepModel, 
-    IfStepModel, 
-    ApplyFiltersActionStepModel, 
-    CheckTermsInTextActionStepModel,
-    GoToStepModel,
-    SetVariableStepModel,
-    ForEachStepModel,
-    FormatListActionStepModel,
-    AddToMemoryActionStepModel,
-    FormatMemoryActionStepModel,
-    EvaluateActionStepModel
-]
-
-CompositeStepModel.model_rebuild()
-IfStepModel.model_rebuild()
-ForEachStepModel.model_rebuild()
-
 class AppConfig(BaseModel):
     log: LogConfig
     general: GeneralConfig
     evaluation_config: EvaluationConfig
     data_processing: DataProcessingConfig
-    workflow: List[StepModel]
 
 class FullConfig(BaseModel):
     app: AppConfig

@@ -8,65 +8,23 @@ from llama_index.core.vector_stores.types import MetadataInfo, VectorStoreInfo
 from utils.llm_call_manager import LLMCallManager
 import re
 
-
-VECTOR_STORE_INFO = VectorStoreInfo(
-    content_info="actas de reuniones de la comunidad de vecinos",
-    metadata_info=[
-        MetadataInfo(
-            name="fecha",
-            type="str",
-            description=(
-                "Es la fecha en la que se celebró la reunión. Está en formato DD/MM/AAAA."
-            ),
-        ),
-        MetadataInfo(
-            name="num_asistentes",
-            type="int",
-            description=(
-                "Es el número de asistentes a la reunión"
-            ),
-        ),
-        MetadataInfo(
-            name="lista_asistentes",
-            type="list",
-            description=(
-                "Es la lista de nombres de los asistentes de la reunión."
-            ),
-        ),
-        MetadataInfo(
-            name="presidente",
-            type="str",
-            description=(
-                "Es el nombre del presidente o presidenta de la reunión."
-            ),
-        ),
-        MetadataInfo(
-            name="secretario",
-            type="str",
-            description=(
-                "Es el nombre del secretario o secretaria de la reunión."
-            ),
-        ),
-    ],
-)
-
-def get_metadata_info(metadata_name:str|None):
-    for metadata in VECTOR_STORE_INFO.metadata_info:
-        if metadata.name == metadata_name:
-            return metadata
-    return None
-
 class GetFinalResponseEvent(Event):
     query:str
 
 class QwenDocumentsBasedQAFlow(Workflow):
-    def __init__(self, llm:Ollama, llm_json_output:Ollama, **kwargs) -> None:
+    def __init__(self, llm:Ollama, llm_json_output:Ollama, metadata_config: VectorStoreInfo, **kwargs) -> None:
         super().__init__(**kwargs)
         self.logger = LoggerManager.get_logger(name=self.__class__.__name__)
         self.llm = llm
         self.llm_json_output = llm_json_output
+        self.metadata_config = metadata_config
         self.step_results = []
 
+    def get_metadata_info(self, metadata_name:str|None):
+        for metadata in self.metadata_config.metadata_info:
+            if metadata.name == metadata_name:
+                return metadata
+        return None
 
     def process_complete_response(self, complete):
         return LLMCallManager.process_complete_response(self.llm.model, complete)
@@ -368,12 +326,12 @@ Consulta del usuario: {query}
         metadata_str = []
         for k, v in document.metadata.items():
             if k != "file_name":
-                metadata_info = get_metadata_info(k)
+                metadata_info = self.get_metadata_info(k)
                 if metadata_info.type == "list":
                     list_str = "\n".join([f"- {e}" for e in v])
-                    metadata_str.append(f"{k}({get_metadata_info(k).description}):\n{list_str}")
+                    metadata_str.append(f"{k}({self.get_metadata_info(k).description}):\n{list_str}")
                 else:
-                    metadata_str.append(f"{k}({get_metadata_info(k).description}): {v}")
+                    metadata_str.append(f"{k}({self.get_metadata_info(k).description}): {v}")
 
         metadata_str = "\n".join(metadata_str)
         # TODO: Probar pasar directament el json  a ver si funciona
@@ -436,12 +394,12 @@ Consulta del usuario: {query}
             metadata_str = []
             for k, v in document.metadata.items():
                 if k != "file_name":
-                    metadata_info = get_metadata_info(k)
+                    metadata_info = self.get_metadata_info(k)
                     if metadata_info.type == "list":
                         list_str = "\n".join([f"- {e}" for e in v])
-                        metadata_str.append(f"{k}({get_metadata_info(k).description}):\n{list_str}")
+                        metadata_str.append(f"{k}({self.get_metadata_info(k).description}):\n{list_str}")
                     else:
-                        metadata_str.append(f"{k}({get_metadata_info(k).description}): {v}")
+                        metadata_str.append(f"{k}({self.get_metadata_info(k).description}): {v}")
             
             metadata_str = "\n".join(metadata_str)
             document_str = f"<<<Documento {doc_filename}:\n {metadata_str}>>>"
@@ -455,12 +413,12 @@ Consulta del usuario: {query}
         metadata_str = []
         for k, v in document.metadata.items():
             if k != "file_name":
-                metadata_info = get_metadata_info(k)
+                metadata_info = self.get_metadata_info(k)
                 if metadata_info.type == "list":
                     list_str = "\n".join([f"- {e}" for e in v])
-                    metadata_str.append(f"{k}({get_metadata_info(k).description}):\n{list_str}")
+                    metadata_str.append(f"{k}({self.get_metadata_info(k).description}):\n{list_str}")
                 else:
-                    metadata_str.append(f"{k}({get_metadata_info(k).description}): {v}")
+                    metadata_str.append(f"{k}({self.get_metadata_info(k).description}): {v}")
         # metadata_str = '\n'.join(f'{k} ({get_metadata_info(k).description}): {v}' for k, v in d.metadata.items() if k != "file_name")
         metadata_str = "\n".join(metadata_str)
         # TODO: Probar pasar directament el json  a ver si funciona
