@@ -144,19 +144,19 @@ CONSULTA: {query}
             ),
         }
         #Step 4: Transform query if it is global
-        if not is_global_query:
-            query_to_analyze = query
-            step_result["resultado"] = f"""Según el análisis, la consulta '{query}' es de tipo individual. Por ello, no hay necesidad de transformarla en una subconsulta."""
-        else:
-            if is_comparative_query:
-                step_result["resultado"] = (
-                    f"Según el análisis, la consulta '{query}' es de tipo global. En este caso, no se tranforma en una subconsulta."
-                )
-            else:
+        if not is_comparative_query:
+            if is_global_query:
                 self.logger.info(f"This is a global query: {query}")
                 query_to_analyze = self.trasform_to_sub_query(query)
                 step_result["resultado"] = (
-                f"Según el análisis, la consulta '{query}' es de tipo global. Por ello, se obtiene una subconsulta para preguntar a cada reunión: {query_to_analyze}"
+                    f"Según el análisis, la consulta '{query}' es de tipo global. Por ello, se obtiene una subconsulta para preguntar a cada reunión: {query_to_analyze}"
+                )
+            else:
+                query_to_analyze = query
+                step_result["resultado"] = f"""Según el análisis, la consulta '{query}' es de tipo individual. Por ello, no hay necesidad de transformarla en una subconsulta."""
+        else:
+            step_result["resultado"] = (
+                f"Según el análisis, la consulta '{query}' es de tipo comparativo. En este caso, no se tranforma en una subconsulta."
             )
 
         self.step_results.append(step_result)
