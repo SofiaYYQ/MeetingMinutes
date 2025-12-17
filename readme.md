@@ -10,7 +10,7 @@
   Dataset used for evaluation:
   - `/answers`: Contains the expected answers to the questions.
   - `/questions`: Contains the set of questions used in the evaluation.
-    - `/prompts`: Contains prompts to extract structured answers from textual responses, facilitating subsequent automated comparison for evaluation.
+    - `/prompts`: Contains prompts to extract structured answers from textual responses, facilitating subsequent automated comparison.
 
 - `/logs`  
   Stores the system execution logs.
