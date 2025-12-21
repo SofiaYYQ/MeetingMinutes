@@ -1,3 +1,12 @@
+
+**Important**
+
+The analyses and results reported in the manuscript submitted were generated using branch **`original_version`**.
+> Branch: https://github.com/SofiaYYQ/MeetingMinutes/tree/original_version
+
+The exact procedure to reproduce the experiments is described in the corresponding branch.
+
+
 ## Project Directory Structure
 
 - `/config`  
