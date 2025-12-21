@@ -1,3 +1,15 @@
+## How to Reproduce the Experiment ##
+To reproduce the experiments:
+
+1. **Follow the [installation instructions](#required-installation) below** to set up the environment. 
+2. **Run the three configurations** (`base_model`, `reactagent`,`without_dsl`(proposal)) for all selected local models.
+   > *Note:* In this version, switching between models must be done **manually in the code**.
+3. For commercial models, the experiments were conducted using their official web interfaces:
+   - [DeepSeek](https://chat.deepseek.com/)
+   - [Claude](https://claude.ai/)
+   - [Gemini](https://gemini.google.com/app)
+
+
 ## Project Directory Structure
 
 - `/config`  
