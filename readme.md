@@ -3,6 +3,18 @@ To reproduce the experiments:
 
 1. **Follow the [installation instructions](#-required-installation) below** to set up the environment. 
 2. **Run the three configurations** (`base_model`, `reactagent`,`without_dsl`(proposal)) for all selected local models.
+
+    To facilitate the comparison process, a model is employed for automatically extracting relevant information and checking alignment with the expected answer.
+
+- For each run, an **Excel (.xlsx) file** is generated, identified by date and time, with the following columns:
+     - **Question** – The input question.
+     - **Expected Answer** – The reference answer.
+     - **Real Answer** – The raw output from the model.
+     - **Real Answer (formatted)** – Processed information extracted from the raw answer.
+     - **Correct/Incorrect** – Indicates whether the real answer matches the expected answer.
+    
+   These results are **manually reviewed before being used**, because their reliability depends heavily on the quality of the model used for extraction and comparison.
+
    > *Note:* In this version, switching between models must be done **manually in the code**.
 3. For commercial models, the experiments were conducted using their official web interfaces:
    - [DeepSeek](https://chat.deepseek.com/)
