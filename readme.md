@@ -2,7 +2,7 @@
 To reproduce the experiments:
 
 1. **Follow the [installation instructions](#-required-installation) below** to set up the environment. 
-2. **Run the three configurations** (`base_model`, `reactagent`,`without_dsl`(proposal)) for all selected local models.
+2. **Run the three configurations** (`base_model`, `reactagent`,`without_dsl`(proposal)) for all selected local models, following the steps described in the section [Running the Evaluation Procedure](#running-the-evaluation-procedure).
     > *Note:* In this version, switching between models must be done **manually in the code**.
     
     To facilitate the comparison process, a model is employed for automatically extracting relevant information and checking alignment with the expected answer.
